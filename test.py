@@ -3,7 +3,7 @@
 from vm import VM
 from vmhost import VMhost
 from vmpoolstate import VMPoolState
-from migrationpath import VMPoolShortestPathFinder
+from dijkstra import VMPoolShortestPathFinder
 from migrationpath2 import VMPoolPathFinder
 
 def find_path(stateA, stateB):
