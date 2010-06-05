@@ -54,10 +54,12 @@ def swap_with_one_temp():
     stateA = {
         'demo1' : [ vm1 ],
         'demo2' : [ vm2 ],
+        'demo3' : [ ],
         }
     stateB = {
         'demo1' : [ vm2 ],
         'demo2' : [ vm1 ],
+        'demo3' : [ ],
         }
     return find_path(stateA, stateB)
 
