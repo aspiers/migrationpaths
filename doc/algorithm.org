@@ -1,0 +1,223 @@
+* terminology
+*** state (node in graph)
+    unique mapping of VMs to hosts
+*** move (edge in graph)
+***** single, sane VM migration from one node to another
+***** sane means it satisfies all constraints
+***** transient vs non-transient constraints
+      - transient constraints
+        - don't necessary apply to all states
+          e.g. constraint on total memory of physical host A available
+          for VMs means host A can only accommodate VM X for some states
+          when there is enough memory free
+      - non-transient constraints
+        - always apply
+          e.g. 32-bit hosts can never host 64-bit VMs
+      - if while searching the tree, a non-sane migration is encountered
+        - can't be due to non-transient constraints
+          otherwise end state would not be sane
+        - therefore surmountable by finding the right order of migrations
+*** required move
+    one which takes a VM to its ultimate destination
+* design notes and other considerations
+*** marking nodes as visited
+    - nodes could be uniquely represented as the set of migrations performed
+      - order performed doesn't matter
+        since same state is achieved regardless of order of migrations,
+        given that migration sequence has been sanely constructed
+*** Dijkstra doesn't prune the search tree enough => too slow
+*** Shortest path is too hard/ambitious
+    requires investigating way too many possibilities
+*** Breadth first requires iterating over way too many possibilities
+    before arriving at an answer
+*** Therefore depth first required, i.e. with backtracking
+*** algorithm should be reversible / symmetrical
+    - i.e. optimal path A->B also gives optimal reverse path B->A
+    - so "smallest/largest first" type strategies don't make sense
+*** new algorithm
+***** state.solve(REQUIRED)
+      - REQUIRED is list of required moves
+      - pick any one
+        - if sane from current state
+          - recurse depth-first from new state
+        - if not sane
+          - try to displace VMs from move's target to make it sane
+          - if this fails, backtrack
+      - Need to update required moves when non-required moves are made
+      - Always prefer required moves
+***** state.displace(FOR, FROM, LOCKED, REQUIRED)
+      - FOR is the VM we are displacing on behalf of
+      - FROM is the VM host we are displacing from
+      - LOCKED is a list of VMs we are not allowed to touch
+        This prevents deadlock / infinite loop, e.g. 
+          P:a60 Q:b60 R:
+        to
+          P:b60 Q:c60 R:
+        requires displacement of Q for a, but then moving
+        b:Q>P would require displacement of P for b which
+        cannot be allowed, therefore b:Q>R is the only solution.
+      - breadth first
+      - When we backtrack, do we need to remember why?
+        i.e. displace something in order to make a move possible, then
+        immediately retry that move?
+        - Yes
+      - solution search order should prioritise:
+        - required moves first
+        - moves which are immediately possible, to minimise search tree 
+        - (maybe) moves which would immediately satisfy need to move FOR to FROM
+          i.e. "just big enough"
+          b) bigger one
+          c) smaller one in decreasing order of size
+      - once a single displacement has
+***** cases
+      - can do required move
+      - need to move something else out of the way before doing required move;
+        i.e. backtrack:
+        a) something else can be another required move
+        b) or an unrequired move
+        c) or a selection of a) and/or b)
+      - cannot do required move 
+***** questions:
+      - Need to keep track how "explored" a node is?
+        - A node is "fully explored" when all possible moves from it have
+          been fully explored
+        - A node is "half explored" when all required moves from it have
+          been FIXME explored
+      - When making an unrequired move, does it matter whether it
+        moves a VM which has a required move?  Suspected answer:
+        - sometimes, sometimes not, but no easy way to tell
+* case study 1 - swap one pair using spare created via displacement
+*** start
+    P:a70
+    Q:b70
+    R:c10 d10 e10 f10 g10
+    S:h60 i20
+*** finish
+    P:b70
+    Q:a70
+    R:c10 d10 e10 f10 g10 i20
+    S:h60 
+*** required moves:
+    a:P>Q
+    b:Q>P
+    i:S>R
+*** ordered navigation of search tree:
+    - req a:P>Q? X
+      - displace from Q for a (locked: a)
+        - req b:Q>P? X
+          - displace from P for b (locked: a b)
+            - nothing to displace from P (a already locked) => dead end
+          - <- b:Q>P fully explored
+        - nonreq b:Q>R? X
+          - displace from R for b (locked: a b)
+            - OK nonreq c:R>P
+            - req b:Q>R? X (retry)
+            - displacement not finished
+            - OK nonreq: d:R>P
+            - OK req b:Q>R (retry)
+          - <- OK c:R>P d:R>P b:Q>R
+            - OK req a:P>Q
+            - OK req i:S>R
+            - DONE
+* case study 2 - swap two pairs using empty spare
+
+*** start
+    P:a70
+    Q:b70
+    R:c70
+    S:d70
+    T:
+
+*** finish
+    P:b70
+    Q:a70
+    R:c70
+    S:d70
+    T:
+
+*** required moves:
+    - req a:P>Q? X
+    - displace from Q for a (locked: a)
+      - req b:Q>P? X
+        - displace from P for b (locked: a b)
+          - nothing to displace from P (a already locked) => dead end
+        - <- b:Q>P fully explored
+      - nonreq b:Q>R? X
+
+*** ordered navigation of search tree:
+    - a:P>R? X
+    - b:Q>S? X
+    - c:R>P? X
+    - d:S>Q? X
+    - for a:P>R
+      - c:R>Q? X
+      - c:R>S? X
+      - c:R>T
+        - a:P>R
+
+* case study 3 - cycle using empty spare
+*** start
+    P:a70
+    Q:b70
+    R:c70
+    S:d70
+    T:
+*** finish
+    P:d70
+    Q:a70
+    R:b70
+    S:c70
+    T:
+*** where do you break the loop?
+    answer: when you hit a dead end which results from
+    locking of VMs in place when displacing from hosts for their benefit
+*** required moves:
+    - a:P>Q
+    - b:Q>R
+    - c:R>S
+    - d:S>P
+
+*** ordered navigation of search tree:
+    - a:P>R? X
+    - b:Q>S? X
+    - c:R>P? X
+    - d:S>Q? X
+    - for a:P>R
+      - c:R>Q? X
+      - c:R>S? X
+      - c:R>T
+        - a:P>R
+
+* case study 4 - uneven cycle
+*** start
+    P:a85
+    Q:b80
+    R:c75
+    S:d70
+    T:x30
+*** finish
+    P:d70
+    Q:a85
+    R:b80
+    S:c75
+    T:x30
+* case study 5 - "cession gives choice"
+  from old notes, not sure what I meant by that
+*** start
+    P: x40 a60 
+    Q: b30
+    --
+    R: y40 c60
+    S: d30
+    T:
+*** required moves
+    a <-> b; c:R>S
+*** finish
+    P: x40 b30
+    Q: a60
+    --
+    R: y40
+    S: d30 c60
+    T:
+*** one might be sane but cause a new loop (b)
+*** one might require a loop to be broken (c)
