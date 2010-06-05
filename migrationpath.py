@@ -90,10 +90,10 @@ class VMPoolShortestPathFinder:
         if state.unique() not in self.cache:
             self.cache[state.unique()] = state
 
-    def shortest_path_to(self, final_state):
+    def path_to(self, final_state):
         if hasattr(self, 'path'):
             raise RuntimeError, \
-                  "cannot reuse VMPoolShortestPathFinder instance"
+                  "cannot reuse %s instance" % self.__class__.__name__
 
         self.check_endpoint_vms(final_state)
         self.power_off()
@@ -116,7 +116,6 @@ class VMPoolShortestPathFinder:
             self.done[current] = True
 
         if self.found:
-            # This method is wrapped by VMPoolState.shortest_path_to
             return self.trace_path()
         else:
             return None

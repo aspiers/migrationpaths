@@ -3,12 +3,14 @@
 from vm import VM
 from vmhost import VMhost
 from vmpoolstate import VMPoolState
+from migrationpath import VMPoolShortestPathFinder
+from migrationpath2 import VMPoolPathFinder
 
 def find_path(stateA, stateB):
     sA = VMPoolState().init_by_vmhosts(stateA)
     sB = VMPoolState().init_by_vmhosts(stateB)
-#    found = sA.shortest_path_to(sB)
-    found = sA.path_to(sB)
+    found = sA.path_to(sB, VMPoolShortestPathFinder)
+    #found = sA.path_to(sB, VMPoolPathFinder)
     # FIXME: allow unit test assertions
     found.report()
 

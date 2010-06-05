@@ -181,15 +181,9 @@ class VMPoolState:
             sys.stderr.write("end state not sane: %s\n" % e)
             sys.exit(1)
 
-    def shortest_path_to(self, final_state):
+    def path_to(self, final_state, finder_class):
         self.check_endpoints_sane(final_state)
-        finder = VMPoolShortestPathFinder(self)
-        path = finder.shortest_path_to(final_state)
-        return finder
-
-    def path_to(self, final_state):
-        self.check_endpoints_sane(final_state)
-        finder = VMPoolPathFinder(self)
+        finder = finder_class(self)
         path = finder.path_to(final_state)
         return finder
 
