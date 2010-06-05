@@ -45,8 +45,8 @@ class VMPoolShortestPathFinder:
     #     u := node in Q with smallest dist[]
     #     for each neighbor v of u not in D:
     #         check for shorter path to v
-    #         if u not in T:
-    #             add u to T
+    #         if v not in T:
+    #             add v to T
     #         
     #     // u is now "explored"
     #     move u from T to D
