@@ -171,12 +171,14 @@ class VMPoolState:
     def check_endpoints_sane(self, final_state):
         try:
             self.check_sane()
+            print "start state sane:", self
         except VMPoolStateSanityError, e:
             sys.stderr.write("start state not sane: %s\n" % e)
             sys.exit(1)
 
         try:
             final_state.check_sane()
+            print "end state sane:  ", final_state
         except VMPoolStateSanityError, e:
             sys.stderr.write("end state not sane: %s\n" % e)
             sys.exit(1)
