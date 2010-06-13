@@ -9,10 +9,13 @@ from migrationpath2 import VMPoolPathFinder
 def find_path(stateA, stateB):
     sA = VMPoolState().init_by_vmhosts(stateA)
     sB = VMPoolState().init_by_vmhosts(stateB)
-    found = sA.path_to(sB, VMPoolShortestPathFinder)
-    #found = sA.path_to(sB, VMPoolPathFinder)
+    path = sA.path_to(sB, VMPoolShortestPathFinder)
+    #path = sA.path_to(sB, VMPoolPathFinder)
     # FIXME: allow unit test assertions
-    found.report()
+    if not path:
+        print "didn't find a shortest path"
+        return
+    path.report()
 
 def simple_swap():
     demo1 = VMhost('demo1', 'x86_64', 4096)
@@ -216,8 +219,9 @@ def chain4():
     return find_path(stateA, stateB)
 
 #simple_swap()
-simple_cessation()
-#swap_with_one_temp()
+#simple_cessation()
+swap_with_one_temp()
 #tricky1()
 #tricky()
+#chain6()
 #chain4()

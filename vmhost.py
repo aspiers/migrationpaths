@@ -9,7 +9,7 @@ class VMhost:
         self.arch = arch
         self.ram = ram
         if name in VMhost.vmhosts:
-            raise "vmhost %s already initialised" % name
+            raise RuntimeError, "vmhost %s already initialised" % name
         VMhost.vmhosts[name] = self
 
     def __str__(self):

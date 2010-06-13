@@ -8,7 +8,7 @@ class VM:
         self.arch = arch
         self.ram = ram
         if name in VM.vms:
-            raise "vm %s already initialised" % name
+            raise RuntimeError, "vm %s already initialised" % name
         VM.vms[name] = self
 
     def __str__(self):

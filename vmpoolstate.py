@@ -6,8 +6,9 @@ import sys
 from types import *
 from vm import VM
 from vmhost import VMhost
-from migrationpath import VMPoolShortestPathFinder
+from dijkstra import VMPoolShortestPathFinder
 from migrationpath2 import VMPoolPathFinder
+from vmpoolpath import VMPoolPath
 from vmpoolstateerrors import *
 
 class VMPoolState:
@@ -35,6 +36,9 @@ class VMPoolState:
     def vmhosts(self):
         return self.vmhost2vms.keys()
 
+    def get_vm_vmhost(self, vm):
+        return self.vm2vmhost[vm]
+
     def init_vmhost(self, vmhost_name):
         """Adds a new vmhost to the pool."""
         if vmhost_name in self.vmhost2vms:
@@ -55,7 +59,8 @@ class VMPoolState:
         return self
 
     def add_vm(self, vm_name, vmhost_name):
-        """Add a VM (by name) to a VM host (by name)."""
+        """Add a VM (by name) to a VM host (by name).
+        Changes the current state in-place."""
         assert type(vm_name) is StringType
         assert type(vmhost_name) is StringType
         if vm_name in self.vm2vmhost:
@@ -66,7 +71,8 @@ class VMPoolState:
         self.vmhost2vms[vmhost_name][vm_name] = 1
 
     def remove_vm(self, vm_name):
-        """Remove a VM (by name) from its current VM host."""
+        """Remove a VM (by name) from its current VM host.
+        Changes the current state in-place."""
         if vm_name not in self.vm2vmhost:
             raise KeyError, "VM %s not in pool" % vm_name
         vmhost_name = self.vm2vmhost[vm_name]
@@ -74,6 +80,19 @@ class VMPoolState:
             raise RuntimeError, "BUG: no such vmhost %s" % vmhost_name
         del self.vmhost2vms[vmhost_name][vm_name]
         del self.vm2vmhost[vm_name]
+
+    def provision_vm(self, vm_name, vmhost_name):
+        """Provision VM (by name) to a VM host (by name).
+        Returns the new state."""
+        new = deepcopy(self)
+        new.add_vm(vm_name, vmhost_name)
+        return new
+
+    def shutdown_vm(self, vm_name):
+        """Shuts down VM (by name).  Returns the new state."""
+        new = deepcopy(self)
+        new.remove_vm(vm_name)
+        return new
 
 # use copy.deepcopy instead
 #     def clone(self):
@@ -168,24 +187,5 @@ class VMPoolState:
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.unique())
 
-    def check_endpoints_sane(self, final_state):
-        try:
-            self.check_sane()
-            print "start state sane:", self
-        except VMPoolStateSanityError, e:
-            sys.stderr.write("start state not sane: %s\n" % e)
-            sys.exit(1)
-
-        try:
-            final_state.check_sane()
-            print "end state sane:  ", final_state
-        except VMPoolStateSanityError, e:
-            sys.stderr.write("end state not sane: %s\n" % e)
-            sys.exit(1)
-
     def path_to(self, final_state, finder_class):
-        self.check_endpoints_sane(final_state)
-        finder = finder_class(self)
-        path = finder.path_to(final_state)
-        return finder
-
+        return finder_class(self, final_state).find_path()
