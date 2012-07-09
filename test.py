@@ -220,8 +220,8 @@ def chain4():
 
 #simple_swap()
 #simple_cessation()
-swap_with_one_temp()
-#tricky1()
+#swap_with_one_temp()
+tricky1()
 #tricky()
 #chain6()
 #chain4()

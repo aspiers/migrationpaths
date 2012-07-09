@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import copy
 from types import *
 from vmpoolstateerrors import VMPoolStateSanityError
 from vmmigration import VMmigration
@@ -17,10 +18,11 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     N.B. Instances should not be reused for multiple runs."""
 
     def run(self):
-        self.path = self._path_to(self.initial_state, final_state, self.vms_to_move)
-        return self.path
+        return self.solve(self.vms_to_migrate)
 
-    def _path_to(self, current, final, vms_to_move):
+    def solve(self, vms_to_migrate):
+        vms_to_migrate = copy.copy(self.vms_to_migrate)
+        
         print ". Looking for path from"
         print "       %s " % current
         print "    to %s"  % final
