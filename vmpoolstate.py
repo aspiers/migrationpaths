@@ -6,9 +6,6 @@ import sys
 from types import *
 from vm import VM
 from vmhost import VMhost
-from dijkstra import VMPoolShortestPathFinder
-from migrationpath2 import VMPoolPathFinder
-from vmpoolpath import VMPoolPath
 from vmpoolstateerrors import *
 
 class VMPoolState:
