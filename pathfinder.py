@@ -58,6 +58,9 @@ class VMPoolPathFinder:
         self.path.set_pre_provision_state(self.state_pre_final_provisions)
 
         migrations, cost = self.run()
+        if migrations is None:
+            return None
+
         self.path.set_migration_sequence(migrations)
         self.path.set_cost(cost)
 
