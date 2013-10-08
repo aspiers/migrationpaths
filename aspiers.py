@@ -72,22 +72,22 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 % (final, vm, final.vm2vmhost[vm], to_host)
 
         try:
-            new = current.check_migration_sane(vm, to_host)
+            new_state = current.check_migration_sane(vm, to_host)
         except VMPoolStateSanityError, exc:
             print "  . can't migrate without first making way:"
             print "    %s" % exc
             del vms_to_migrate[vm]
-            cession_path, new = self._cede(current, final, migration, vms_to_migrate)
+            cession_path, new_state = self._cede(current, final, migration, vms_to_migrate)
             if not cession_path:
                 raise RuntimeError, "Couldn't make way for %s at %s" % (vm, current)
             vms_to_migrate[vm] = migration
-            return cession_path + self._path_to(new, final)
+            return cession_path + self._path_to(new_state, final)
 
             raise RuntimeError, "NYI"
 
         print ". migration sane"
         del vms_to_migrate[migration.vm.name]
-        return [migration] + self._path_to(new, final, vms_to_migrate)
+        return [migration] + self._path_to(new_state, final, vms_to_migrate)
 
     def _cede(self, current, final, on_behalf_of, vms_to_migrate):
         """Allow the on_behalf_of migration to take place by moving as

@@ -116,14 +116,14 @@ class VMPoolState:
         new.remove_vm(vm)
         new.add_vm(vm, to_host)
         return new
-        
+
     def check_migration_sane(self, vm, to_host):
         """Checks whether vm can be moved to to_host.  Returns new
         pool state if sane, otherwise raises a VMPoolStateSanityError.
         """
-        new = self.migrate(str(vm), str(to_host))
-        new.check_sane()
-        return new
+        new_state = self.migrate(str(vm), str(to_host))
+        new_state.check_sane()
+        return new_state
 
     def total_guest_RAM(self, vmhost_name):
         guests = self.vmhost2vms[vmhost_name]
