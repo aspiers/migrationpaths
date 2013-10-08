@@ -27,19 +27,19 @@ class VMPoolState:
         self.vmhost2vms = { }
 
     def vms(self):
-        """Returns a list of VMs in this state."""
+        """Returns a list of names of VMs in this state."""
         return self.vm2vmhost.keys()
 
     def vmhosts(self):
-        """Returns a list of VM hosts in this state."""
+        """Returns a list of names of VM hosts in this state."""
         return self.vmhost2vms.keys()
 
-    def get_vm_vmhost(self, vm):
+    def get_vm_vmhost(self, vm_name):
         """Returns the host for a given VM in this state."""
-        return self.vm2vmhost[vm]
+        return self.vm2vmhost[vm_name]
 
     def init_vmhost(self, vmhost_name):
-        """Adds a new vmhost to the pool."""
+        """Adds a new vmhost to the pool by name."""
         if vmhost_name in self.vmhost2vms:
             raise ValueError, "tried to init vmhost %s twice" % vmhost_name
         self.vmhost2vms[vmhost_name] = { }
@@ -104,20 +104,20 @@ class VMPoolState:
 #             new.vmhost2vms[vmhost] = vms.copy()
 #         return new
 
-    def migrate(self, vm, to_host):
+    def migrate(self, vm_name, to_host):
         """Generate a new instance representing the state after
-        migration of vm to to_host.
+        migration of the VM with name vm_name to to_host.
         """
         assert type(to_host) is StringType
-        from_host = self.vm2vmhost[vm]
+        from_host = self.vm2vmhost[vm_name]
         if from_host == to_host:
             raise RuntimeError, "can't migrate %s from %s to same vmhost" % \
-                  (vm, from_host)
+                  (vm_name, from_host)
             
         #new = self.clone()
         new = deepcopy(self)
-        new.remove_vm(vm)
-        new.add_vm(vm, to_host)
+        new.remove_vm(vm_name)
+        new.add_vm(vm_name, to_host)
         return new
 
     def check_migration_sane(self, vm, to_host):
