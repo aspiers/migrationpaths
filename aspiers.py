@@ -22,6 +22,13 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         return self.solve(self.initial_state, self.vms_to_migrate)
 
     def solve(self, current, vms_to_migrate):
+        """Returns a list of sane migrations which transform the
+        current state into the final state.  vms_to_migrate is a dict
+        of all the VMs whose placement needs to change between the
+        current state and the final state; it is an optimisation which
+        allows us to calculate this incrementally rather than
+        comparing all VMs each time we recursively invoke solve().
+        """
         vms_to_migrate = copy.copy(self.vms_to_migrate)
         
         print ". Looking for path from"
