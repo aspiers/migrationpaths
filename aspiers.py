@@ -31,7 +31,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """
         vms_to_migrate = copy.copy(self.vms_to_migrate)
         
-        if self.solved(current, vms_to_migrate):
+        if self._solved(current, vms_to_migrate):
             return []
 
         print ". Looking for path from"
@@ -46,7 +46,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             path += self._do_migration(current, migration, vms_to_migrate)
         return path
 
-    def solved(self, current, vms_to_migrate):
+    def _solved(self, current, vms_to_migrate):
         if current == self.final_state:
             if len(vms_to_migrate) == 0:
                 return True
