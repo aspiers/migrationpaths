@@ -184,5 +184,5 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
                 break
             migration_sequence.insert(0, migration)
 
-        return (migration_sequence, self.distances[self.end])
+        return migration_sequence
     

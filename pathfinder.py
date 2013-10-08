@@ -58,11 +58,12 @@ class VMPoolPathFinder:
         self.path.set_post_shutdown_state(self.state_post_initial_shutdowns)
         self.path.set_pre_provision_state(self.state_pre_final_provisions)
 
-        migrations, cost = self.run()
+        migrations = self.run()
         if migrations is None:
             return None
 
         self.path.set_migration_sequence(migrations)
+        cost = reduce(lambda acc, mig: acc + mig.cost(), migrations, 0)
         self.path.set_cost(cost)
 
         return self.path
