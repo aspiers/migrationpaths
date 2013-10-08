@@ -31,12 +31,12 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """
         vms_to_migrate = copy.copy(self.vms_to_migrate)
         
+        if self.solved(current, vms_to_migrate):
+            return []
+
         print ". Looking for path from"
         print "       %s " % current
         print "    to %s"  % self.final_state
-
-        if self.solved(current, vms_to_migrate):
-            return []
 
         path = []
         while len(vms_to_migrate) > 0:
