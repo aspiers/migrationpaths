@@ -77,11 +77,11 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             print "  . can't migrate without first making way:"
             print "    %s" % exc
             del vms_to_migrate[vm]
-            cession_path, new_state = self._cede(current, final, migration, vms_to_migrate)
-            if not cession_path:
+            displacement_path, new_state = self._displace(current, final, migration, vms_to_migrate)
+            if not displacement_path:
                 raise RuntimeError, "Couldn't make way for %s at %s" % (vm, current)
             vms_to_migrate[vm] = migration
-            return cession_path + self._path_to(new_state, final)
+            return displacement_path + self._path_to(new_state, final)
 
             raise RuntimeError, "NYI"
 
@@ -89,7 +89,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         del vms_to_migrate[migration.vm.name]
         return [migration] + self._path_to(new_state, final, vms_to_migrate)
 
-    def _cede(self, current, final, on_behalf_of, vms_to_migrate):
+    def _displace(self, current, final, on_behalf_of, vms_to_migrate):
         """Allow the on_behalf_of migration to take place by moving as
         many VMs as it takes away from the migration's destination
         host.  Recurse if necessary."""
@@ -97,7 +97,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         usurper_host = on_behalf_of.from_host
 
         print "vms_to_migrate:", vms_to_migrate
-        candidates = self._find_cession_candidates(vms_to_migrate, on_behalf_of)
+        candidates = self._find_displacement_candidates(vms_to_migrate, on_behalf_of)
         print "  -- candidates before sorting by cost:"
         for c in candidates:
             print "    %4d %s" % (c.cost(), c)
@@ -106,7 +106,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         for c in candidates:
             print "    %4d %s" % (c.cost(), c)
             
-        # TODO: try ceding multiple VMs
+        # TODO: try displacing multiple VMs
         for migration in candidates:
             # Need to be able to backtrack
             tmp_vms_to_migrate = vms_to_migrate.copy()
@@ -115,20 +115,20 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             # actually help?
             new2, reason2 = new.check_migration_sane(usurper, usurper_host)
             if new2:
-                print "      + %s achieves effective cession" % migration
+                print "      + %s achieves effective displacement" % migration
                 return path
             else:
-                print "      + %s doesn't achieve effective cession" % migration
+                print "      + %s doesn't achieve effective displacement" % migration
                 # next, no depth search for now
                 pass
             raise RuntimeError, "NYI"
 
-    def _find_cession_candidates(self, vms_to_migrate, on_behalf_of):
+    def _find_displacement_candidates(self, vms_to_migrate, on_behalf_of):
         host_to_clear = on_behalf_of.to_host
         candidates = [ ] # find VMs to move away
         for (vm_name, migration) in vms_to_migrate.iteritems():
             if migration is on_behalf_of:
-                raise RuntimeError, "shouldn't be considering %s which cessation is on behalf of" % on_behalf_of
+                raise RuntimeError, "shouldn't be considering %s which displacement is on behalf of" % on_behalf_of
                 continue
             if migration.from_host != host_to_clear:
                 print "    - %s not on host being cleared (%s)" % (vm_name, host_to_clear)
