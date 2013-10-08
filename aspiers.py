@@ -15,7 +15,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     cleaner (albeit slightly more complex) through not having to pass
     several state variables around.
 
-    N.B. Instances should not be reused for multiple runs."""
+    N.B. Instances should not be reused for multiple runs.
+    """
 
     def run(self):
         return self.solve(self.initial_state, self.vms_to_migrate)
@@ -54,7 +55,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         migration.  vms_to_migrate is the todo list.  migration is the
         ultimate target migration, but we may need to do others before
         we can do it, so it stays on the vms_to_migrate queue until we
-        actually manage it."""
+        actually manage it.
+        """
 
         vm = migration.vm.name
         from_host = migration.from_host

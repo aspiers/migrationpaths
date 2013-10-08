@@ -14,7 +14,8 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
     code a bit cleaner (albeit slightly more complex) through not
     having to pass several state variables around.
 
-    N.B. Instances should not be reused for multiple runs."""
+    N.B. Instances should not be reused for multiple runs.
+    """
 
     # // This is the algorithm in pseudo-code from
     # // http://en.wikipedia.org/wiki/Dijkstra's_algorithm
@@ -146,7 +147,8 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
         
     def check_migration(self, migration):
         """Check whether we've found a quicker way of getting from the
-        initial state to new_state."""
+        initial state to new_state.
+        """
         new = migration.to_state.unique()
         current = migration.from_state.unique()
         cost = migration.cost()

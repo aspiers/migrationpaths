@@ -10,7 +10,8 @@ class VMPoolPathFinder:
     code a bit cleaner (albeit slightly more complex) through not
     having to pass several state variables around.
 
-    N.B. Instances should not be reused for multiple runs."""
+    N.B. Instances should not be reused for multiple runs.
+    """
 
     def __init__(self, initial_state, final_state):
         self.initial_state = initial_state
@@ -69,7 +70,8 @@ class VMPoolPathFinder:
     def compare_endpoints(self):
         """Figure out which VMs need to be shutdown first, which need
         to be migrated next, and finally which need to be provisioned
-        at the end."""
+        at the end.
+        """
         self.vms_to_shutdown = { }
         self.vms_to_migrate  = { }
         for start_vm in self.initial_state.vms():
@@ -89,7 +91,8 @@ class VMPoolPathFinder:
     def do_initial_shutdowns(self):
         """Returns the pool state which results after doing all
         initial shutdowns.  Notice that the shutdowns can be done in
-        any order, or in parallel."""
+        any order, or in parallel.
+        """
         cur = self.initial_state
         if len(self.vms_to_shutdown) > 0:
             for vm in self.vms_to_shutdown:
@@ -99,7 +102,8 @@ class VMPoolPathFinder:
     def reverse_final_provisions(self):
         """Returns the pool state prior to performing the final set of
         provisioning actions.  Notice that these can be done in any
-        order, or in parallel."""
+        order, or in parallel.
+        """
         cur = self.final_state
         if len(self.vms_to_provision) > 0:
             for vm, vmhost in self.vms_to_provision.items():

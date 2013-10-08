@@ -9,8 +9,7 @@ from vmhost import VMhost
 from vmpoolstateerrors import *
 
 class VMPoolState:
-    """
-    This class represents a pool of VMs and VM hosts together with
+    """This class represents a pool of VMs and VM hosts together with
     a particular placement of the VMs across the VM hosts.
     """
 
@@ -43,10 +42,9 @@ class VMPoolState:
         self.vmhost2vms[vmhost_name] = { }
         
     def init_by_vmhosts(self, state):
-        """
-        Adds multiple VMs and VM hosts in one go.  The placement is
-        determined by the state dict whose keys are VM host names,
-        and whose values are the VM objects (N.B. not VM names)
+        """Adds multiple VMs and VM hosts in one go.  The placement is
+        determined by the state dict whose keys are VM host names, and
+        whose values are the VM objects (N.B. not VM names)
         corresponding to that key.
         """
         for vmhost_name, vms in state.iteritems():
@@ -57,7 +55,8 @@ class VMPoolState:
 
     def add_vm(self, vm_name, vmhost_name):
         """Add a VM (by name) to a VM host (by name).
-        Changes the current state in-place."""
+        Changes the current state in-place.
+        """
         assert type(vm_name) is StringType
         assert type(vmhost_name) is StringType
         if vm_name in self.vm2vmhost:
@@ -69,7 +68,8 @@ class VMPoolState:
 
     def remove_vm(self, vm_name):
         """Remove a VM (by name) from its current VM host.
-        Changes the current state in-place."""
+        Changes the current state in-place.
+        """
         if vm_name not in self.vm2vmhost:
             raise KeyError, "VM %s not in pool" % vm_name
         vmhost_name = self.vm2vmhost[vm_name]
@@ -80,7 +80,8 @@ class VMPoolState:
 
     def provision_vm(self, vm_name, vmhost_name):
         """Provision VM (by name) to a VM host (by name).
-        Returns the new state."""
+        Returns the new state.
+        """
         new = deepcopy(self)
         new.add_vm(vm_name, vmhost_name)
         return new
@@ -101,9 +102,8 @@ class VMPoolState:
 #         return new
 
     def migrate(self, vm, to_host):
-        """
-        Generate a new instance representing the state after migration
-        of vm to to_host.
+        """Generate a new instance representing the state after
+        migration of vm to to_host.
         """
         assert type(to_host) is StringType
         from_host = self.vm2vmhost[vm]
@@ -119,8 +119,8 @@ class VMPoolState:
         
     def check_migration_sane(self, vm, to_host):
         """Checks whether vm can be moved to to_host.  Returns new
-        pool state if sane, otherwise raises a VMPoolStateSanityError."""
-
+        pool state if sane, otherwise raises a VMPoolStateSanityError.
+        """
         new = self.migrate(str(vm), str(to_host))
         new.check_sane()
         return new
@@ -134,8 +134,7 @@ class VMPoolState:
             self.check_vmhost_sane(vmhost_name)
 
     def check_vmhost_sane(self, vmhost_name):
-        """
-        Raises a VMPoolStateSanityError exception if given VM host is
+        """Raises a VMPoolStateSanityError exception if given VM host is
         capable of hosting VMs allocated to it in this state object.
         """
         guest_RAM_required = self.total_guest_RAM(vmhost_name)
