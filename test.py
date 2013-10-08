@@ -68,7 +68,7 @@ def swap_with_one_temp():
         }
     return find_path(stateA, stateB)
 
-def tricky1():
+def shutdown_and_swap():
     demo1 = VMhost('demo1', 'x86_64', 4096)
     demo2 = VMhost('demo2', 'x86_64', 3048)
     demo3 = VMhost('demo3', 'i386'  , 4096)
@@ -223,7 +223,7 @@ def chain4():
 #simple_swap()
 #simple_cessation()
 #swap_with_one_temp()
-tricky1()
+shutdown_and_swap()
 #tricky()
 #chain6()
 #chain4()
