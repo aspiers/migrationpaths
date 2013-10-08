@@ -91,6 +91,8 @@ def shutdown_and_swap():
         'demo3' : [ vm7, vm8 ],
         'demo4' : [ vm5, vm6 ]
         }
+    # shutdown vm2, vm6, vm7, vm8
+    # swap vm5 and vm9
     stateB = {
         'demo1' : [ vm1 ],
         'demo2' : [ vm3, vm4, vm5 ],
