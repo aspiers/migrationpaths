@@ -43,7 +43,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             vm = vms_to_migrate.keys()[0]
             migration = vms_to_migrate[vm]
             assert type(vm) is StringType
-            path += self._do_migration(current, final, migration, vms_to_migrate)
+            path += self._do_migration(current, migration, vms_to_migrate)
         return path
 
     def solved(self, current, vms_to_migrate):
@@ -57,7 +57,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         else:
             return False
 
-    def _do_migration(self, current, final, migration, vms_to_migrate):
+    def _do_migration(self, current, migration, vms_to_migrate):
         """Returns path (sequence of migrations) ending with provided
         migration.  vms_to_migrate is the todo list.  migration is the
         ultimate target migration, but we may need to do others before
@@ -74,6 +74,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if current.vm2vmhost[vm] != str(from_host):
             raise RuntimeError, "going from %s, from_host of %s was %s and %s" % \
                 (current, vm, current.vm2vmhost[vm], from_host)
+        final = self.final_state
         if final.vm2vmhost[vm] != str(to_host):
             raise RuntimeError, "going to %s, to_host of %s was %s and %s" \
                 % (final, vm, final.vm2vmhost[vm], to_host)
@@ -96,7 +97,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         del vms_to_migrate[migration.vm.name]
         return [migration] + self._path_to(new_state, final, vms_to_migrate)
 
-    def _displace(self, current, final, on_behalf_of, vms_to_migrate):
+    def _displace(self, current, on_behalf_of, vms_to_migrate):
         """Allow the on_behalf_of migration to take place by moving as
         many VMs as it takes away from the migration's destination
         host.  Recurse if necessary."""
@@ -117,7 +118,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         for migration in candidates:
             # Need to be able to backtrack
             tmp_vms_to_migrate = vms_to_migrate.copy()
-            (path, new) = self._do_migration(current, final, migration, tmp_vms_to_migrate)
+            (path, new) = self._do_migration(current, migration, tmp_vms_to_migrate)
             # ok, so we can get this VM out of the way, but will it
             # actually help?
             new2, reason2 = new.check_migration_sane(usurper, usurper_host)
