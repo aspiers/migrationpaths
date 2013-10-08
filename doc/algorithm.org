@@ -1,3 +1,24 @@
+* motivation
+*** decouple calculation of final VM arrangement from path-finding
+***** removes need for placement optimiser to worry about path-finding
+***** allows switchable policies for placement optimisation to reuse path-finder
+******* power-saving: squash onto as few VM hosts as possible
+******* performance: spread VMs across as many VM hosts as possible
+******* emergency evacuation
+******* manual/maintenance: cloud operator chooses placement
+***** optimiser can use path-finder as an input
+******* all other things being equal, solutions can be favoured due to shorter path
+******* need to know whether optimised state is reachable
+***** optimisation is Hard - take divide and conquer approach to problem
+***** NEXT none of these are killer arguments yet :-/
+*** PoC with nova
+* goals
+*** if there is a path, the algorithm MUST find it
+*** exhaustive search for shortest path not practical
+***** already tried Dijkstra
+*** just need something reasonably efficient with decent average case complexity
+*** worst case complexity *may* get ugly, not sure yet
+*** determination of which states are sane should be pluggable
 * terminology
 *** state (node in graph)
     unique mapping of VMs to hosts
