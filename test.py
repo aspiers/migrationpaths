@@ -17,6 +17,7 @@ def find_path(stateA, stateB):
     if not path:
         print "didn't find a shortest path"
         return
+    print
     path.report()
 
 def simple_swap():
