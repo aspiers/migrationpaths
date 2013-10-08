@@ -30,7 +30,7 @@ class VMPoolState:
         """Returns a list of names of VMs in this state."""
         return self.vm2vmhost.keys()
 
-    def vmhosts(self):
+    def vmhost_names(self):
         """Returns a list of names of VM hosts in this state."""
         return self.vmhost2vms.keys()
 
@@ -133,7 +133,7 @@ class VMPoolState:
         return sum([VM.vms[guest].ram for guest in guests])
 
     def check_sane(self):
-        for vmhost_name in self.vmhosts():
+        for vmhost_name in self.vmhost_names():
             self.check_vmhost_sane(vmhost_name)
 
     def check_vmhost_sane(self, vmhost_name):
@@ -174,7 +174,7 @@ class VMPoolState:
     def unique(self):
         """Return unique, deterministic string representing this state."""
         vmhost_strs = [ ]
-        for vmhost in sorted(self.vmhosts()):
+        for vmhost in sorted(self.vmhost_names()):
             vms = self.vmhost2vms[vmhost].keys()
             vms.sort()
             vmhost_strs.append(vmhost + "[" + ' '.join(vms) + "]")
