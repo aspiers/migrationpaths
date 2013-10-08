@@ -27,12 +27,15 @@ class VMPoolState:
         self.vmhost2vms = { }
 
     def vms(self):
+        """Returns a list of VMs in this state."""
         return self.vm2vmhost.keys()
 
     def vmhosts(self):
+        """Returns a list of VM hosts in this state."""
         return self.vmhost2vms.keys()
 
     def get_vm_vmhost(self, vm):
+        """Returns the host for a given VM in this state."""
         return self.vm2vmhost[vm]
 
     def init_vmhost(self, vmhost_name):
@@ -42,10 +45,10 @@ class VMPoolState:
         self.vmhost2vms[vmhost_name] = { }
         
     def init_by_vmhosts(self, state):
-        """Adds multiple VMs and VM hosts in one go.  The placement is
-        determined by the state dict whose keys are VM host names, and
-        whose values are the VM objects (N.B. not VM names)
-        corresponding to that key.
+        """Adds multiple VMs and VM hosts in one go, changing the
+        current state in place.  The placement is determined by the
+        state dict whose keys are VM host names, and whose values are
+        the VM objects (N.B. not VM names) corresponding to that key.
         """
         for vmhost_name, vms in state.iteritems():
             self.init_vmhost(vmhost_name)
