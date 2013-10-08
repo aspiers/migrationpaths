@@ -31,9 +31,10 @@ class VMPoolPath:
 
     def report(self):
         print "Short path found with cost %d:" % self.cost
-        print "First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
+        if self.vms_to_shutdown:
+            print "- First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
 
-        print "Start: ", self.post_shutdown_state
+        print "  Start: ", self.post_shutdown_state
         # for state in self.path[1:]:
         #     prev = self.previous[state]
         #     from_state = self.cache[prev]
@@ -41,11 +42,12 @@ class VMPoolPath:
         #     from_host = from_state.vm2vmhost[vm]
         #     print "%s: %s -> %s  cost %d" % (vm, from_host, to_host, cost)
         for migration in self.migration_sequence:
-            print "%s: %s -> %s  cost %d" % \
+            print "! %s: %s -> %s  cost %d" % \
                 (migration.vm, migration.from_host,
                  migration.to_host, migration.cost())
-        print "End:   ", self.pre_provision_state
+        print "  End:   ", self.pre_provision_state
 
-        provisions = [ "%s on %s" % (vm, vmhost) \
-                           for vm, vmhost in self.vms_to_provision ]
-        print "Finally provision VMs: %s" % ", ".join(provisions)
+        if self.vms_to_provision:
+            provisions = [ "%s on %s" % (vm, vmhost) \
+                               for vm, vmhost in self.vms_to_provision ]
+            print "+ Finally provision VMs: %s" % ", ".join(provisions)
