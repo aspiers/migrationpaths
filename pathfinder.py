@@ -75,8 +75,8 @@ class VMPoolPathFinder:
         """
         self.vms_to_shutdown = { }
         self.vms_to_migrate  = { }
-        for start_vm in self.initial_state.vms():
-            if start_vm not in self.final_state.vms():
+        for start_vm in self.initial_state.vm_names():
+            if start_vm not in self.final_state.vm_names():
                 self.vms_to_shutdown[start_vm] = True
             else:
                 from_host = self.initial_state.vm2vmhost[start_vm]
@@ -85,8 +85,8 @@ class VMPoolPathFinder:
                     self.vms_to_migrate[start_vm] = True
 
         self.vms_to_provision = { }
-        for end_vm in self.final_state.vms():
-            if end_vm not in self.initial_state.vms():
+        for end_vm in self.final_state.vm_names():
+            if end_vm not in self.initial_state.vm_names():
                 self.vms_to_provision[end_vm] = self.final_state.vm2vmhost[end_vm]
 
     def do_initial_shutdowns(self):

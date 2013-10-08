@@ -109,7 +109,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
         migrated_vms = [ ]
         unmigrated_vms = [ ]
         assert current_state
-        for vm in current_state.vms():
+        for vm in current_state.vm_names():
             if vm in self.vms_to_migrate:
                 migrated_vms.append(vm)
             else:
