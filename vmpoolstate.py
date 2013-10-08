@@ -181,6 +181,11 @@ class VMPoolState:
 
     __str__ = unique
 
+    def __eq__(self, other):
+        if isinstance(other, VMPoolState):
+            return self.unique() == other.unique()
+        return NotImplemented
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.unique())
 
