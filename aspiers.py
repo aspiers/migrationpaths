@@ -26,13 +26,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         print ". Looking for path from"
         print "       %s " % current
         print "    to %s"  % self.final_state
-        if current == self.final_state:
-            if len(vms_to_migrate) == 0:
-                return []
-            else:
-                raise RuntimeError, "Reached final state and still had vms to move", vms_to_migrate
-        elif len(vms_to_migrate) == 0:
-            raise RuntimeError, "No vms left to move and not yet at final state"        
+
+        if self.solved(current, vms_to_migrate):
+            return []
 
         path = []
         while len(vms_to_migrate) > 0:
@@ -41,6 +37,17 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             assert type(vm) is StringType
             path += self._do_migration(current, final, migration, vms_to_migrate)
         return path
+
+    def solved(self, current, vms_to_migrate):
+        if current == self.final_state:
+            if len(vms_to_migrate) == 0:
+                return True
+            else:
+                raise RuntimeError, "Reached final state and still had vms to move", vms_to_migrate
+        elif len(vms_to_migrate) == 0:
+            raise RuntimeError, "No vms left to move and not yet at final state"
+        else:
+            return False
 
     def _do_migration(self, current, final, migration, vms_to_migrate):
         """Returns path (sequence of migrations) ending with provided
