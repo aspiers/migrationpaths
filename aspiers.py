@@ -18,15 +18,15 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     N.B. Instances should not be reused for multiple runs."""
 
     def run(self):
-        return self.solve(self.vms_to_migrate)
+        return self.solve(self.initial_state, self.vms_to_migrate)
 
-    def solve(self, vms_to_migrate):
+    def solve(self, current, vms_to_migrate):
         vms_to_migrate = copy.copy(self.vms_to_migrate)
         
         print ". Looking for path from"
         print "       %s " % current
-        print "    to %s"  % final
-        if current.unique() == final.unique():
+        print "    to %s"  % self.final_state
+        if current == self.final_state:
             if len(vms_to_migrate) == 0:
                 return []
             else:
