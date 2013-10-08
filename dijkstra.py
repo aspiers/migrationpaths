@@ -124,7 +124,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
                     continue
 
                 new_state = current_state.migrate(vm, to_host)
-                migration = VMmigration(vm, current_state, new_state)
+                migration = VMmigration(vm, from_host, to_host)
                 print "    %s" % migration
                 try:
                     new_state.check_sane()
@@ -139,18 +139,18 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
 
                 self.cache_state(new_state)
 
-                self.check_migration(migration)
+                self.check_migration(migration, current_state, new_state)
 
                 new = new_state.unique()
                 if new not in self.done and new not in self.todo:
                     self.todo.insert(new, self.distances[new_state.unique()])
         
-    def check_migration(self, migration):
+    def check_migration(self, migration, current_state, new_state):
         """Check whether we've found a quicker way of getting from the
         initial state to new_state.
         """
-        new = migration.to_state.unique()
-        current = migration.from_state.unique()
+        new = new_state.unique()
+        current = current_state.unique()
         cost = migration.cost()
         alt = self.distances[current] + cost
         if new not in self.distances or \
