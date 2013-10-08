@@ -20,8 +20,9 @@
 *** required move
     one which takes a VM to its ultimate destination
 * design notes and other considerations
-*** marking nodes as visited
-    - nodes could be uniquely represented as the set of migrations performed
+*** marking graph nodes as visited
+    - graph nodes *could* be uniquely represented as the unordered set
+      of migrations performed
       - order performed doesn't matter
         since same state is achieved regardless of order of migrations,
         given that migration sequence has been sanely constructed
@@ -37,17 +38,20 @@
 *** new algorithm
 ***** state.solve(REQUIRED)
       - REQUIRED is list of required moves
-      - pick any one
-        - if sane from current state
-          - recurse depth-first from new state
-        - if not sane
-          - try to displace VMs from move's target to make it sane
-          - if this fails, backtrack
-      - Need to update required moves when non-required moves are made
+      - returns a single complete solution, or None
       - Always prefer required moves
-***** state.displace(FOR, FROM, LOCKED, REQUIRED)
-      - FOR is the VM we are displacing on behalf of
+      - For each required move which is sane from current state
+        - recurse depth-first from new state
+        - if solution found, return it
+      - Otherwise for each required move which is *not* sane from current state
+        - try to make it sane by calling state.displace()
+      - If these fail, backtrack (or give up at top level) by returning None
+      - Need to update required moves when non-required moves are made
+***** state.displace(FROM, FOR, REQUIRED, LOCKED)
       - FROM is the VM host we are displacing from
+      - FOR is the VM we are displacing on behalf of
+        - knowing this can help optimise choice of VMs to displace,
+          e.g. minimise RAM size of VM to displace
       - LOCKED is a list of VMs we are not allowed to touch
         This prevents deadlock / infinite loop, e.g. 
           P:a60 Q:b60 R:
@@ -86,7 +90,7 @@
       - When making an unrequired move, does it matter whether it
         moves a VM which has a required move?  Suspected answer:
         - sometimes, sometimes not, but no easy way to tell
-* case study 1 - swap one pair using spare created via displacement
+* case study 1 - swap a<->b using space created via displacement
 *** start
     P:a70
     Q:b70
@@ -97,21 +101,20 @@
     Q:a70
     R:c10 d10 e10 f10 g10 i20
     S:h60 
-*** required moves:
-    a:P>Q
-    b:Q>P
-    i:S>R
+*** required moves: a:P>Q b:Q>P (swap a/b), and i:S>R
+*** solutions
+***** 8: fg:R>S b:Q>R a:P>Q b:R>P fgi:S>R
 *** ordered navigation of search tree:
-    - req a:P>Q? X
+    - req a:P>Q sane? no
       - displace from Q for a (locked: a)
-        - req b:Q>P? X
+        - req b:Q>P sane? no
           - displace from P for b (locked: a b)
             - nothing to displace from P (a already locked) => dead end
           - <- b:Q>P fully explored
-        - nonreq b:Q>R? X
+        - nonreq b:Q>R sane? no
           - displace from R for b (locked: a b)
             - OK nonreq c:R>P
-            - req b:Q>R? X (retry)
+            - req b:Q>R sane? no (retry)
             - displacement not finished
             - OK nonreq: d:R>P
             - OK req b:Q>R (retry)
@@ -119,42 +122,40 @@
             - OK req a:P>Q
             - OK req i:S>R
             - DONE
-* case study 2 - swap two pairs using empty spare
-
+* case study 2 - swap two pairs (a/b & c/d) using empty spare (T)
 *** start
     P:a70
     Q:b70
     R:c70
     S:d70
     T:
-
 *** finish
     P:b70
     Q:a70
-    R:c70
-    S:d70
+    R:d70
+    S:c70
     T:
-
-*** required moves:
-    - req a:P>Q? X
+*** required moves: a:P>Q b:Q>P c:R>S d:S>R
+*** solutions
+***** 6: b:Q>T a:P>Q b:T>P c:R>T d:S>R c:T>S
+*** FIXME
+    - req a:P>Q sane? no
     - displace from Q for a (locked: a)
-      - req b:Q>P? X
+      - req b:Q>P sane? no
         - displace from P for b (locked: a b)
           - nothing to displace from P (a already locked) => dead end
         - <- b:Q>P fully explored
-      - nonreq b:Q>R? X
-
+      - nonreq b:Q>R sane? no
 *** ordered navigation of search tree:
-    - a:P>R? X
-    - b:Q>S? X
-    - c:R>P? X
-    - d:S>Q? X
-    - for a:P>R
-      - c:R>Q? X
-      - c:R>S? X
-      - c:R>T
+    - a:P>Q sane? no
+    - b:Q>P sane? no
+    - c:R>S sane? no
+    - d:S>R sane? no
+    - for a:P>Q
+      - b:Q>P sane? no
+      - b:Q>R sane? no
+      - b:Q>T
         - a:P>R
-
 * case study 3 - cycle using empty spare
 *** start
     P:a70
@@ -176,18 +177,6 @@
     - b:Q>R
     - c:R>S
     - d:S>P
-
-*** ordered navigation of search tree:
-    - a:P>R? X
-    - b:Q>S? X
-    - c:R>P? X
-    - d:S>Q? X
-    - for a:P>R
-      - c:R>Q? X
-      - c:R>S? X
-      - c:R>T
-        - a:P>R
-
 * case study 4 - uneven cycle
 *** start
     P:a85
@@ -201,6 +190,7 @@
     R:b80
     S:c75
     T:x30
+*** required moves: a:P>Q b:Q>R c:R>S d:S>T
 * case study 5 - "cession gives choice"
   from old notes, not sure what I meant by that
 *** start
@@ -210,8 +200,6 @@
     R: y40 c60
     S: d30
     T:
-*** required moves
-    a <-> b; c:R>S
 *** finish
     P: x40 b30
     Q: a60
@@ -219,5 +207,6 @@
     R: y40
     S: d30 c60
     T:
+*** required moves: a<->b c:R>S
 *** one might be sane but cause a new loop (b)
 *** one might require a loop to be broken (c)
