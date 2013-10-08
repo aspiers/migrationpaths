@@ -4,13 +4,15 @@ from vm import VM
 from vmhost import VMhost
 from vmpoolstate import VMPoolState
 from dijkstra import VMPoolShortestPathFinder
-from migrationpath2 import VMPoolPathFinder
+from aspiers import VMPoolAdamPathFinder
+
+#STRATEGY = VMPoolShortestPathFinder
+STRATEGY = VMPoolAdamPathFinder
 
 def find_path(stateA, stateB):
     sA = VMPoolState().init_by_vmhosts(stateA)
     sB = VMPoolState().init_by_vmhosts(stateB)
-    path = sA.path_to(sB, VMPoolShortestPathFinder)
-    #path = sA.path_to(sB, VMPoolPathFinder)
+    path = sA.path_to(sB, STRATEGY)
     # FIXME: allow unit test assertions
     if not path:
         print "didn't find a shortest path"
