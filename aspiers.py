@@ -27,33 +27,33 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         print "       %s " % current
         print "    to %s"  % final
         if current.unique() == final.unique():
-            if len(vms_to_move) == 0:
+            if len(vms_to_migrate) == 0:
                 return []
             else:
-                raise RuntimeError, "Reached final state and still had vms to move", vms_to_move
-        elif len(vms_to_move) == 0:
+                raise RuntimeError, "Reached final state and still had vms to move", vms_to_migrate
+        elif len(vms_to_migrate) == 0:
             raise RuntimeError, "No vms left to move and not yet at final state"        
 
         path = []
-        while len(vms_to_move) > 0:
-            vm = vms_to_move.keys()[0]
-            migration = vms_to_move[vm]
+        while len(vms_to_migrate) > 0:
+            vm = vms_to_migrate.keys()[0]
+            migration = vms_to_migrate[vm]
             assert type(vm) is StringType
-            path += self._do_migration(current, final, migration, vms_to_move)
+            path += self._do_migration(current, final, migration, vms_to_migrate)
         return path
 
-    def _do_migration(self, current, final, migration, vms_to_move):
+    def _do_migration(self, current, final, migration, vms_to_migrate):
         """Returns path (sequence of migrations) ending with provided
-        migration.  vms_to_move is the todo list.  migration is the
+        migration.  vms_to_migrate is the todo list.  migration is the
         ultimate target migration, but we may need to do others before
-        we can do it, so it stays on the vms_to_move queue until we
+        we can do it, so it stays on the vms_to_migrate queue until we
         actually manage it."""
 
         vm = migration.vm.name
         from_host = migration.from_host
         to_host = migration.to_host
         print "+ Trying migration %s" % migration
-        print "vms_to_move:", vms_to_move
+        print "vms_to_migrate:", vms_to_migrate
         # sanity check
         if current.vm2vmhost[vm] != str(from_host):
             raise RuntimeError, "going from %s, from_host of %s was %s and %s" % \
@@ -67,28 +67,28 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         except VMPoolStateSanityError, exc:
             print "  . can't migrate without first making way:"
             print "    %s" % exc
-            del vms_to_move[vm]
-            cession_path, new = self._cede(current, final, migration, vms_to_move)
+            del vms_to_migrate[vm]
+            cession_path, new = self._cede(current, final, migration, vms_to_migrate)
             if not cession_path:
                 raise RuntimeError, "Couldn't make way for %s at %s" % (vm, current)
-            vms_to_move[vm] = migration
+            vms_to_migrate[vm] = migration
             return cession_path + self._path_to(new, final)
 
             raise RuntimeError, "NYI"
 
         print ". migration sane"
-        del vms_to_move[migration.vm.name]
-        return [migration] + self._path_to(new, final, vms_to_move)
+        del vms_to_migrate[migration.vm.name]
+        return [migration] + self._path_to(new, final, vms_to_migrate)
 
-    def _cede(self, current, final, on_behalf_of, vms_to_move):
+    def _cede(self, current, final, on_behalf_of, vms_to_migrate):
         """Allow the on_behalf_of migration to take place by moving as
         many VMs as it takes away from the migration's destination
         host.  Recurse if necessary."""
         usurper = on_behalf_of.vm
         usurper_host = on_behalf_of.from_host
 
-        print "vms_to_move:", vms_to_move
-        candidates = self._find_cession_candidates(vms_to_move, on_behalf_of)
+        print "vms_to_migrate:", vms_to_migrate
+        candidates = self._find_cession_candidates(vms_to_migrate, on_behalf_of)
         print "  -- candidates before sorting by cost:"
         for c in candidates:
             print "    %4d %s" % (c.cost(), c)
@@ -100,8 +100,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         # TODO: try ceding multiple VMs
         for migration in candidates:
             # Need to be able to backtrack
-            tmp_vms_to_move = vms_to_move.copy()
-            (path, new) = self._do_migration(current, final, migration, tmp_vms_to_move)
+            tmp_vms_to_migrate = vms_to_migrate.copy()
+            (path, new) = self._do_migration(current, final, migration, tmp_vms_to_migrate)
             # ok, so we can get this VM out of the way, but will it
             # actually help?
             new2, reason2 = new.check_migration_sane(usurper, usurper_host)
@@ -114,10 +114,10 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 pass
             raise RuntimeError, "NYI"
 
-    def _find_cession_candidates(self, vms_to_move, on_behalf_of):
+    def _find_cession_candidates(self, vms_to_migrate, on_behalf_of):
         host_to_clear = on_behalf_of.to_host
         candidates = [ ] # find VMs to move away
-        for (vm_name, migration) in vms_to_move.iteritems():
+        for (vm_name, migration) in vms_to_migrate.iteritems():
             if migration is on_behalf_of:
                 raise RuntimeError, "shouldn't be considering %s which cessation is on behalf of" % on_behalf_of
                 continue
