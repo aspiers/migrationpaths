@@ -120,11 +120,11 @@ class VMPoolState:
         new.add_vm(vm_name, to_host)
         return new
 
-    def check_migration_sane(self, vm, to_host):
+    def check_migration_sane(self, vm_name, to_host):
         """Checks whether vm can be moved to to_host.  Returns new
         pool state if sane, otherwise raises a VMPoolStateSanityError.
         """
-        new_state = self.migrate(str(vm), str(to_host))
+        new_state = self.migrate(vm_name, str(to_host))
         new_state.check_sane()
         return new_state
 
