@@ -159,7 +159,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                locked_for_displacement)
             if displacement_path is None:
                 continue
-            
+            print "  + path to unvalidated displacement: %s" % displacement_path
+
             # ok, so we can get this VM out of the way, but will it
             # actually help?
             displace_from_host = on_behalf_of.to_host
@@ -207,6 +208,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         case_two, case_three = [ ], [ ]
 
         displace_from_host = on_behalf_of.to_host
+        print "|   finding candidates to displace from %s" % displace_from_host
 
         for vm_name in current_state.vmhost2vms[displace_from_host.name]:
             if vm_name in locked_vms:
