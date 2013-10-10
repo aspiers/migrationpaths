@@ -113,7 +113,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if sane:
             print "  + migration sane"
         else:
-            print "  x can't migrate without first making way:"
+            print "  x can't migrate %s without first making way:" % migration.vm
             print "    %s" % exc
             print "    vms_to_migrate pre displacement: %s" % ", ".join(vms_to_migrate.keys())
             displacement_path, new_state, vms_to_migrate = \
