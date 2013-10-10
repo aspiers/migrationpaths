@@ -100,23 +100,17 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
         print "  locked_vms: %s" % ", ".join(locked_vms.keys())
-        path = [ migration ]
-        vm_name = migration.vm.name
-        vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate, migration)
 
-        try:
-            new_state = \
-                current_state.check_migration_sane(vm_name, migration.to_host)
-            sane = True
-        except VMPoolStateSanityError, exc:
-            sane = False
+        path_or_exc, new_state, new_vms_to_migrate = \
+            self._solve_single(current_state, migration,
+                               vms_to_migrate, locked_vms)
 
-        if sane:
-            print "  + migration sane"
+        if not isinstance(path_or_exc, VMPoolStateSanityError):
+            return path_or_exc, new_state, new_vms_to_migrate
         else:
             print "  x can't migrate %s without first making way:" % \
                 migration.vm
-            print "    %s" % exc
+            print "    %s" % path_or_exc
             print "    vms_to_migrate pre displacement: %s" % \
                 ", ".join(vms_to_migrate.keys())
             displacement_path, new_state, vms_to_migrate = \
@@ -124,14 +118,37 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                vms_to_migrate, locked_vms)
             if displacement_path is None:
                 print "<< Couldn't make way for %s at %s\n" % \
-                    (vm_name, current_state)
+                    (migration.vm.name, current_state)
                 return None, None, None
             path = displacement_path
 
-        print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
-
         print "SEGMENT: %s\n" % ", ".join([ str(m) for m in path ])
         return path, new_state, vms_to_migrate
+
+    def _solve_single(self, current_state, migration,
+                      vms_to_migrate, locked_vms):
+        """Checks the given migration is sane, and returns the updated state.
+
+        Returns a (path, new_state, vms_to_migrate) tuple:
+        path -- a singleton list of the migration, or VMPoolStateSanityError
+                if the migration is not sane.
+        new_state -- the new state reached by the given migration, or None
+        vms_to_migrate -- an updated version of vms, or None
+        """
+        print "\nsolve_single %s" % migration
+
+        try:
+            new_state = \
+                current_state.check_migration_sane(migration.vm.name,
+                                                   migration.to_host)
+        except VMPoolStateSanityError, exc:
+            print "  << migration not currently possible"
+            return exc, None, None
+
+        print "  + migration sane"
+        print "SEGMENT: %s\n" % migration
+        return [ migration ], new_state, \
+            self._update_vms_to_migrate(vms_to_migrate, migration)
 
     def _update_vms_to_migrate(self, vms_to_migrate, migration):
         vms_to_migrate = copy.copy(vms_to_migrate)
