@@ -57,7 +57,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 vms_to_migrate = new_vms_to_migrate
                 current_state = new_state
             else:
-                raise RuntimeError, "oh dear, couldn't figure out how to solve to %s" % migration
+                raise RuntimeError("oh dear, couldn't figure out "
+                                   "how to solve to %s" % migration)
 
         return path
 
@@ -66,9 +67,12 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             if len(vms_to_migrate) == 0:
                 return True
             else:
-                raise RuntimeError, "Reached final state and still had vms to move", vms_to_migrate
+                raise RuntimeError(
+                    "Reached final state and "
+                    "still had vms to move: %s" % vms_to_migrate)
         elif len(vms_to_migrate) == 0:
-            raise RuntimeError, "No vms left to move and not yet at final state"
+            raise RuntimeError("No vms left to move "
+                               "and not yet at final state")
         else:
             return False
 
@@ -106,7 +110,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             vms_to_migrate[vm_name] = True
 
         try:
-            new_state = current_state.check_migration_sane(vm_name, migration.to_host)
+            new_state = \
+                current_state.check_migration_sane(vm_name, migration.to_host)
             sane = True
         except VMPoolStateSanityError, exc:
             sane = False
@@ -114,13 +119,17 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if sane:
             print "  + migration sane"
         else:
-            print "  x can't migrate %s without first making way:" % migration.vm
+            print "  x can't migrate %s without first making way:" % \
+                migration.vm
             print "    %s" % exc
-            print "    vms_to_migrate pre displacement: %s" % ", ".join(vms_to_migrate.keys())
+            print "    vms_to_migrate pre displacement: %s" % \
+                ", ".join(vms_to_migrate.keys())
             displacement_path, new_state, vms_to_migrate = \
-                self._displace(current_state, migration, vms_to_migrate, locked_vms)
+                self._displace(current_state, migration,
+                               vms_to_migrate, locked_vms)
             if displacement_path is None:
-                print "Couldn't make way for %s at %s\n" % (vm_name, current_state)
+                print "Couldn't make way for %s at %s\n" % \
+                    (vm_name, current_state)
                 return None, None, None
             path = displacement_path
 
@@ -129,7 +138,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         print "SEGMENT: %s\n" % ", ".join([ str(m) for m in path ])
         return path, new_state, vms_to_migrate
 
-    def _displace(self, current_state, on_behalf_of, vms_to_migrate, locked_vms):
+    def _displace(self, current_state, on_behalf_of,
+                  vms_to_migrate, locked_vms):
         """Allow the on_behalf_of migration to take place by
         displacing as many VMs as required away from the migration's
         destination host.  Any VMs whose name is in the locked_vms
@@ -167,7 +177,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             displace_from_host = on_behalf_of.to_host
             try:
                 displaced_state = \
-                    displaced_state.check_migration_sane(usurper_name, displace_from_host)
+                    displaced_state.check_migration_sane(usurper_name,
+                                                         displace_from_host)
                 displacement_sufficient = True
             except VMPoolStateSanityError, exc:
                 displacement_sufficient = False
@@ -175,9 +186,11 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             if displacement_sufficient:
                 print "      + %s achieves effective displacement" % migration
                 displacement_path.append(migration)
-                return displacement_path, displaced_state, displaced_vms_to_migrate
+                return displacement_path, displaced_state, \
+                    displaced_vms_to_migrate
             else:
-                print "      + %s doesn't achieve effective displacement" % migration
+                print "      + %s doesn't achieve effective displacement" % \
+                    migration
                 # keep on displacing
                 return self._displace(displaced_state, migration,
                                       displaced_vms_to_migrate, locked_vms)
@@ -226,8 +239,10 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             if vm_name in vms_to_migrate:
                 to_host = self.target_host(vm_name)
                 migration = VMmigration(vm_name, displace_from_host, to_host)
-                if migration is on_behalf_of: 
-                    raise RuntimeError, "shouldn't be considering %s which displacement is on behalf of" % on_behalf_of
+                if migration is on_behalf_of:
+                    raise RuntimeError("shouldn't be considering %s "
+                                       "which displacement is on behalf of" %
+                                       on_behalf_of)
                 _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
                 _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host))
