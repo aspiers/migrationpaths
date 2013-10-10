@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from copy import deepcopy
+import os
 import sys
 
 from types import *
@@ -195,3 +196,27 @@ class VMPoolState:
 
     def path_to(self, final_state, finder_class):
         return finder_class(self, final_state).find_path()
+
+    def show_ascii_meters(self, host_width, meter_width, indent=''):
+        for vmhost_name in sorted(self.vmhost_names()):
+            vmhost = VMhost.vmhosts[vmhost_name]
+            meter = self.vmhost_ascii_meter(vmhost, meter_width)
+            format_str = "%%s%%-%d.%ds %%s" % (host_width, host_width)
+            print format_str % (indent, vmhost, meter)
+
+    def vmhost_ascii_meter(self, vmhost, width):
+        width -= 1 # allow space for trailing '|'
+        vm_names = self.vmhost2vms[vmhost.name].keys()
+        vm_names.sort()
+        meter = ''
+        offset = 0.0
+        for vm_name in vm_names:
+            vm = VM.vms[vm_name]
+            length = float(vm.ram) / vmhost.ram * width
+            offset += length
+            vm_width = int(offset) - len(meter)
+            format_str = "%%-%d.%ds" % (vm_width, vm_width)
+            text = "|%s" % vm
+            meter += format_str % text
+        meter += ' ' * (width - len(meter))
+        return meter + "|"

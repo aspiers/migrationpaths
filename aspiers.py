@@ -90,8 +90,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         Recursively calls _solve() (sometimes via _displace()).
         """
-        print "\nsolve_to %s" % migration
-        print "  from %s" % current_state
+        print "\nsolve_to %s from:" % migration
+        current_state.show_ascii_meters(10, 80, indent='  ')
+
         print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
         print "  locked_vms: %s" % ", ".join(locked_vms.keys())
         path = [ migration ]
