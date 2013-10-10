@@ -42,6 +42,6 @@ class VMmigration:
 
     def __str__(self):
         return "%s: %s -> %s (%d)" % \
-            (self.vm, self.from_host, self.to_host, self.cost())
+            (self.vm.name, self.from_host.name, self.to_host.name, self.cost())
 
     __repr__ = __str__
