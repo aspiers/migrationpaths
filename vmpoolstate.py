@@ -109,6 +109,9 @@ class VMPoolState:
         migration of the VM with name vm_name to to_host.
         """
         assert type(to_host) is StringType
+        if to_host not in VMhost.vmhosts:
+            raise RuntimeError, "can't migrate %s to non-existent vmhost %s" % \
+                (vm_name, to_host)
         from_host = self.vm2vmhost[vm_name]
         if from_host == to_host:
             raise RuntimeError, "can't migrate %s from %s to same vmhost" % \
