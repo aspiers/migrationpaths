@@ -208,15 +208,23 @@ class VMPoolState:
         width -= 1 # allow space for trailing '|'
         vm_names = self.vmhost2vms[vmhost.name].keys()
         vm_names.sort()
+        vms = [ VM.vms[vm_name] for vm_name in vm_names ]
         meter = ''
         offset = 0.0
-        for vm_name in vm_names:
-            vm = VM.vms[vm_name]
-            length = float(vm.ram) / vmhost.ram * width
+        ram_used = 0
+
+        doms  = [ ('dom0', VMPoolState.dom0_RAM_required) ]
+        doms += [ (vm.name, vm.ram) for vm in vms ]
+        ram_used = reduce(lambda acc, dom: acc + dom[1], doms, 0)
+        spare_ram = vmhost.ram - ram_used
+        doms += [ ('%d' % spare_ram, spare_ram) ]
+
+        for dom_name, dom_ram in doms:
+            length = float(dom_ram) / vmhost.ram * width
             offset += length
-            vm_width = int(offset) - len(meter)
-            format_str = "%%-%d.%ds" % (vm_width, vm_width)
-            text = "|%s" % vm
+            dom_width = int(offset) - len(meter)
+            format_str = "%%-%d.%ds" % (dom_width, dom_width)
+            text = "|%s" % dom_name
             meter += format_str % text
-        meter += '|%s|' % (' ' * (width - len(meter) - 1))
-        return meter
+
+        return meter + '|'
