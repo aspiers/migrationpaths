@@ -2,6 +2,7 @@
 
 import copy
 from types import *
+
 from vmpoolstateerrors import VMPoolStateSanityError
 from vmmigration import VMmigration
 from pathfinder import VMPoolPathFinder
