@@ -50,7 +50,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             from_host = current_state.get_vm_vmhost(vm_name)
             to_host = self.target_host(vm_name)
             migration = VMmigration(vm_name, from_host, to_host)
-            path_segment, new_state, new_vms_to_migrate = \
+            path_segment, new_state, new_vms_to_migrate, locked_vms = \
                 self._solve_to(current_state, migration, vms_to_migrate, {})
             if path_segment:
                 path += path_segment
@@ -80,20 +80,25 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """Finds a sequence of sane migrations from the current state
         ending with the given migration.
 
-        Returns a (path, new_state, vms_to_migrate) tuple:
-        path -- the list of migrations from the current state ending
-                with the given migration, or None if no such path is found
-        new_state -- the new state reached by the given path, or None
-        vms_to_migrate -- an updated version of vms taking into account
-                          displaced VMs
+        Returns a (path, new_state, vms_to_migrate, locked_vms) tuple:
+        path
+            the list of sane migrations from the current state ending
+            with the given migration, or None if no such path is found
+        new_state
+            the new state reached by the given path, or None
+        vms_to_migrate
+            an updated copy of the provided vms_to_migrate dict, taking into
+            account any VMs which have been migrated
+        locked_vms
+            an updated copy of the provided locked_vms dict, taking into
+            account any VMs which have been migrated
 
-        # FIXME: This still true?
-        # The given VM should be included in the vms_to_migrate TODO
-        # dict, and will stay there until we actually manage to migrate
-        # it to its final destination, since we may need to perform
-        # other displacement migrations first.
+        The given VM should be included in the vms_to_migrate TODO
+        dict, and will stay there until we actually manage to migrate
+        it to its final destination, since we may need to perform
+        other displacement migrations first.
 
-        Recursively calls _solve() (sometimes via _displace()).
+        Recursively calls _displace() when necessary.
         """
         print "\nsolve_to %s from:" % migration
         current_state.show_ascii_meters(10, 80, indent='  ')
@@ -101,38 +106,39 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
         print "  locked_vms: %s" % ", ".join(locked_vms.keys())
 
-        path_or_exc, new_state, new_vms_to_migrate = \
-            self._solve_single(current_state, migration,
-                               vms_to_migrate, locked_vms)
+        path, new_state, new_vms_to_migrate = \
+            self._solve_single(current_state, migration, vms_to_migrate)
 
-        if not isinstance(path_or_exc, VMPoolStateSanityError):
-            return path_or_exc, new_state, new_vms_to_migrate
+        if path is not None:
+            return path, new_state, new_vms_to_migrate, locked_vms
 
         print "  x can't migrate %s without first making way:" % migration.vm
-        print "    %s" % path_or_exc
+        print "    %s" % new_state
         print "    vms_to_migrate pre displacement: %s" % \
             ", ".join(vms_to_migrate.keys())
-        displacement_path, new_state, vms_to_migrate = \
+        displacement_path, displaced_state, vms_to_migrate, locked_vms = \
             self._displace(current_state, migration,
                            vms_to_migrate, locked_vms)
         if displacement_path is None:
             print "<< Couldn't make way for %s at %s\n" % \
                 (migration.vm.name, current_state)
-            return None, None, None
-        path = displacement_path
+            return None, None, None, None
 
-        print "DISPLACE: %s\n" % ", ".join([ str(m) for m in path ])
-        return path, new_state, vms_to_migrate
+        print "DISPLACE: %s\n" % ", ".join([ str(m) for m in displacement_path ])
+        return displacement_path, displaced_state, vms_to_migrate, locked_vms
 
-    def _solve_single(self, current_state, migration,
-                      vms_to_migrate, locked_vms):
+    def _solve_single(self, current_state, migration, vms_to_migrate):
         """Checks the given migration is sane, and returns the updated state.
 
         Returns a (path, new_state, vms_to_migrate) tuple:
-        path -- a singleton list of the migration, or VMPoolStateSanityError
-                if the migration is not sane.
-        new_state -- the new state reached by the given migration, or None
-        vms_to_migrate -- an updated version of vms, or None
+        path
+            a singleton list of the migration, or None
+            if the migration is not sane
+        new_state
+            the new state reached by the given migration, or
+            VMPoolStateSanityError if the migration is not sane
+        vms_to_migrate
+            an updated version of vms_to_migrate, or None
         """
         print "\nsolve_single %s" % migration
 
@@ -142,7 +148,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                                    migration.to_host)
         except VMPoolStateSanityError, exc:
             print "  << migration not currently possible"
-            return exc, None, None
+            return None, exc, None
 
         print "  + migration sane"
         print "SEGMENT: %s\n" % migration
@@ -171,12 +177,18 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         destination host.  Any VMs whose name is in the locked_vms
         dict is excluded from displacement.
 
-        Returns a (path, new_state, vms_to_migrate) tuple:
-        path -- a list of sane migrations ending with on_behalf_of,
-                or None if no such path is found
-        new_state -- the new state reached by the given path, or None
-        vms_to_migrate -- an updated version of vms taking into account
-                          displaced VMs
+        Returns a (path, new_state, vms_to_migrate, locked_vms) tuple:
+        path
+            the list of sane migrations ending with on_behalf_of,
+            or None if no such path is found
+        new_state
+            the new state reached by the given path, or None
+        vms_to_migrate
+            an updated copy of the provided vms_to_migrate dict, taking into
+            account any VMs which have been migrated
+        locked_vms
+            an updated copy of the provided locked_vms dict, taking into
+            account any VMs which have been migrated
 
         Recursively calls _solve_to() / _displace() as necessary.
         """
@@ -191,41 +203,78 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             self._find_displacement_candidates(current_state, vms_to_migrate,
                                                on_behalf_of, locked_vms)
         for migration in candidates:
-            (displacement_path, displaced_state, displaced_vms_to_migrate) = \
+            (partial_displacements,
+             partially_displaced_state,
+             partially_displaced_vms_to_migrate,
+             partially_displaced_locked_vms) = \
                 self._solve_to(current_state, migration, vms_to_migrate,
                                locked_for_displacement)
-            if displacement_path is None:
+            if partial_displacements is None:
                 continue
-            print "  + path to unvalidated displacement: %s" % displacement_path
+            print "  + path to unvalidated displacement: %s" % \
+                partial_displacements
 
-            # ok, so we can get this VM out of the way, but will it
-            # actually help?
-            displace_from_host = on_behalf_of.to_host
-            try:
-                displaced_state = \
-                    displaced_state.check_migration_sane(usurper_name,
-                                                         displace_from_host)
-                displacement_sufficient = True
-            except VMPoolStateSanityError, exc:
-                displacement_sufficient = False
-
-            if displacement_sufficient:
-                print "      + %s achieves effective displacement" % migration
-                displacement_path.append(migration)
-                return displacement_path, displaced_state, \
-                    displaced_vms_to_migrate
-            else:
-                print "      + %s doesn't achieve effective displacement" % \
-                    migration
-                # keep on displacing
-                return self._displace(displaced_state, migration,
-                                      displaced_vms_to_migrate, locked_vms)
+            remaining_displacements, fully_displaced_state, \
+                fully_displaced_vms_to_migrate, displaced_locked_vms = \
+                self._recurse_displacement(partially_displaced_state,
+                                           migration, on_behalf_of,
+                                           partially_displaced_vms_to_migrate,
+                                           partially_displaced_locked_vms)
+            if remaining_displacements is None:
+                # couldn't find a way to make this candidate work
+                continue
+            return partial_displacements + remaining_displacements, \
+                fully_displaced_state, fully_displaced_vms_to_migrate, \
+                displaced_locked_vms
 
         print "  << ran out of displacement candidates! " \
             "giving up on displacement."
-        return None, None, None
+        return None, None, None, None
 
     candidate_search_count = 0
+
+    def _recurse_displacement(self, current_state, migration, on_behalf_of,
+                              vms_to_migrate, locked_vms):
+        """Once the given displacement migration has been made, see
+        whether it was sufficient to allow the on_behalf_of migration
+        to take place, and if not, continue recursively displacing
+        more VMs until we've displaced enough, or until we reach an
+        impasse.
+
+        Returns a (path, new_state, vms_to_migrate, locked_vms) tuple:
+        path
+            the list of sane migrations ending with on_behalf_of,
+            or None if no such path is found
+        new_state
+            the new state reached by the given path, or None
+        vms_to_migrate
+            an updated copy of the provided vms_to_migrate dict, taking into
+            account any VMs which have been migrated
+        locked_vms
+            an updated copy of the provided locked_vms dict, taking into
+            account any VMs which have been migrated
+
+        Recursively calls _displace() as necessary.
+        """
+        try:
+            displaced_state = \
+                current_state.check_migration_sane(on_behalf_of.vm.name,
+                                                   on_behalf_of.to_host)
+            displacement_sufficient = True
+        except VMPoolStateSanityError, exc:
+            displacement_sufficient = False
+
+        if displacement_sufficient:
+            print "      + %s achieves effective displacement" % migration
+            displacement_path.append(migration)
+            return displacement_path, displaced_state, \
+                displaced_vms_to_migrate
+        else:
+            print "      + %s doesn't achieve effective displacement" % \
+                migration
+            # keep on displacing
+            return self._displace(displaced_state, migration,
+                                  displaced_vms_to_migrate, locked_vms)
 
     def _find_displacement_candidates(self, current_state, vms_to_migrate,
                                       on_behalf_of, locked_vms):
