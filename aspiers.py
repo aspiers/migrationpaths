@@ -123,7 +123,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 self._displace(current_state, migration,
                                vms_to_migrate, locked_vms)
             if displacement_path is None:
-                print "Couldn't make way for %s at %s\n" % \
+                print "<< Couldn't make way for %s at %s\n" % \
                     (vm_name, current_state)
                 return None, None, None
             path = displacement_path
@@ -205,6 +205,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 return self._displace(displaced_state, migration,
                                       displaced_vms_to_migrate, locked_vms)
 
+        print "  << ran out of displacement candidates! " \
+            "giving up on displacement."
         return None, None, None
 
     candidate_search_count = 0
