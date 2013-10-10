@@ -107,22 +107,21 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         if not isinstance(path_or_exc, VMPoolStateSanityError):
             return path_or_exc, new_state, new_vms_to_migrate
-        else:
-            print "  x can't migrate %s without first making way:" % \
-                migration.vm
-            print "    %s" % path_or_exc
-            print "    vms_to_migrate pre displacement: %s" % \
-                ", ".join(vms_to_migrate.keys())
-            displacement_path, new_state, vms_to_migrate = \
-                self._displace(current_state, migration,
-                               vms_to_migrate, locked_vms)
-            if displacement_path is None:
-                print "<< Couldn't make way for %s at %s\n" % \
-                    (migration.vm.name, current_state)
-                return None, None, None
-            path = displacement_path
 
-        print "SEGMENT: %s\n" % ", ".join([ str(m) for m in path ])
+        print "  x can't migrate %s without first making way:" % migration.vm
+        print "    %s" % path_or_exc
+        print "    vms_to_migrate pre displacement: %s" % \
+            ", ".join(vms_to_migrate.keys())
+        displacement_path, new_state, vms_to_migrate = \
+            self._displace(current_state, migration,
+                           vms_to_migrate, locked_vms)
+        if displacement_path is None:
+            print "<< Couldn't make way for %s at %s\n" % \
+                (migration.vm.name, current_state)
+            return None, None, None
+        path = displacement_path
+
+        print "DISPLACE: %s\n" % ", ".join([ str(m) for m in path ])
         return path, new_state, vms_to_migrate
 
     def _solve_single(self, current_state, migration,
