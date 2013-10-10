@@ -218,5 +218,5 @@ class VMPoolState:
             format_str = "%%-%d.%ds" % (vm_width, vm_width)
             text = "|%s" % vm
             meter += format_str % text
-        meter += ' ' * (width - len(meter))
-        return meter + "|"
+        meter += '|%s|' % (' ' * (width - len(meter) - 1))
+        return meter
