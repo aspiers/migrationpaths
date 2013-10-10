@@ -4,6 +4,7 @@ class VM:
     vms = { }
 
     def __init__(self, name, arch, ram):
+        assert type(name) is str
         self.name = name
         self.arch = arch
         self.ram = ram
