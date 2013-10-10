@@ -13,6 +13,7 @@ class VMhost:
         VMhost.vmhosts[name] = self
 
     def __str__(self):
+        return "%s@%d" % (self.name, self.ram)
         return self.name
 
     def __repr__(self):
