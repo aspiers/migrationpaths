@@ -6,6 +6,7 @@ from vmpoolstateerrors import VMPoolStateSanityError
 from vmmigration import VMmigration
 from pathfinder import VMPoolPathFinder
 from vm import VM
+from vmhost import VMhost
 
 class VMPoolAdamPathFinder(VMPoolPathFinder):
     """This class enables storage of the state data used during the
@@ -96,7 +97,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         path = [ migration ]
         vms_to_migrate = copy.copy(vms_to_migrate)
         vm_name = migration.vm.name
-        if migration.to_host == self.target_host(vm_name):
+        if migration.to_host == VMhost.vmhosts[self.target_host(vm_name)]:
             if vm_name in vms_to_migrate:
                 del vms_to_migrate[vm_name]
         else:
@@ -224,7 +225,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 print "|1  + saved case 3: %s" % vm_name
 
         # need to consider all the possible places we could displace these VMs to
-        for to_host in current_state.vmhost_names():
+        for to_host_name in current_state.vmhost_names():
+            to_host = VMhost.vmhosts[to_host_name]
             if to_host == displace_from_host:
                 continue
             for vm_name, final_host in case_two:
@@ -235,7 +237,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 yield migration
 
         # need to consider all the possible places we could displace these VMs to
-        for to_host in current_state.vmhost_names():
+        for to_host_name in current_state.vmhost_names():
+            to_host = VMhost.vmhosts[to_host_name]
             if to_host == displace_from_host:
                 continue
             for vm_name in case_three:
