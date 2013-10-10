@@ -195,13 +195,18 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         usurper_name = on_behalf_of.vm.name
         print "  - displace from %s for %s" % (on_behalf_of.to_host, usurper_name)
         print "    vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
+
+        # Ensure displacement can't touch the VM we're displacing on behalf of,
+        # otherwise when we've successfully displaced, we might not be able to
+        # perform the migration we originally wanted to do.
         locked_for_displacement = copy.copy(locked_vms)
         locked_for_displacement[usurper_name] = True
         print "    + locked %s" % usurper_name
 
         candidates = \
             self._find_displacement_candidates(current_state, vms_to_migrate,
-                                               on_behalf_of, locked_vms)
+                                               on_behalf_of,
+                                               locked_for_displacement)
         for migration in candidates:
             (partial_displacements,
              partially_displaced_state,
