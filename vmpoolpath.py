@@ -30,7 +30,8 @@ class VMPoolPath:
         self.cost = cost
 
     def report(self):
-        print "Short path found with cost %d:" % self.cost
+        print "Short path found with %d migrations and cost %d:" % \
+            (len(self.migration_sequence), self.cost)
         if self.vms_to_shutdown:
             print "- First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
 
