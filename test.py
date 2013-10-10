@@ -197,27 +197,27 @@ def chain4():
     big2   = VM('big2', 'x86_64', 510)
     big3   = VM('big3', 'x86_64', 520)
     big4   = VM('big4', 'x86_64', 530)
-    small3 = VM('small3', 'x86_64', 370)
-    small4 = VM('small4', 'x86_64', 380)
-    small5 = VM('small5', 'x86_64', 390)
-    small6 = VM('small6', 'x86_64', 400)
+    small1 = VM('small1', 'x86_64', 370)
+    small2 = VM('small2', 'x86_64', 380)
+    small3 = VM('small3', 'x86_64', 390)
+    small4 = VM('small4', 'x86_64', 400)
     tiny1  = VM('tiny1', 'x86_64', 100)
     tiny2  = VM('tiny2', 'x86_64', 100)
     tiny3  = VM('tiny3', 'x86_64', 100)
     tiny4  = VM('tiny4', 'x86_64', 100)
 
     stateA = {
-        'host1' : [ big1, small3 ],
-        'host2' : [ big2, small4 ],
-        'host3' : [ big3, small5 ],
-        'host4' : [ big4, small6 ],
+        'host1' : [ big1, small1 ],
+        'host2' : [ big2, small2 ],
+        'host3' : [ big3, small3 ],
+        'host4' : [ big4, small4 ],
         'hostX' : [ tiny1, tiny2, tiny3, tiny4 ],
         }
     stateB = {
-        'host1' : [ big1, small6, tiny1 ],
-        'host2' : [ big2, small5, tiny2 ],
-        'host3' : [ big3, small4, tiny3 ],
-        'host4' : [ big4, small3, tiny4 ],
+        'host1' : [ big1, small4, tiny1 ],
+        'host2' : [ big2, small3, tiny2 ],
+        'host3' : [ big3, small2, tiny3 ],
+        'host4' : [ big4, small1, tiny4 ],
         'hostX' : [ ],
         }
 
