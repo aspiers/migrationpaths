@@ -178,9 +178,9 @@ class VMPoolState:
         """Return unique, deterministic string representing this state."""
         vmhost_strs = [ ]
         for vmhost_name in sorted(self.vmhost_names()):
-            vms = self.vmhost2vms[vmhost_name].keys()
-            vms.sort()
-            vmhost_strs.append(vmhost_name + "[" + ' '.join(vms) + "]")
+            vm_names = self.vmhost2vms[vmhost_name].keys()
+            vm_names.sort()
+            vmhost_strs.append(vmhost_name + "[" + ' '.join(vm_names) + "]")
         return " ".join(vmhost_strs)
 
     __str__ = unique
