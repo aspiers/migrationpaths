@@ -183,6 +183,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         return None, None, None
 
+    candidate_search_count = 0
+
     def _find_displacement_candidates(self, current_state, vms_to_migrate,
                                       on_behalf_of, locked_vms):
         """Generator which provides migrations displacing VMs from the
@@ -203,29 +205,35 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         impacted, and hopefully helps minimise the number of
         required migrations too.
         """
+        VMPoolAdamPathFinder.candidate_search_count += 1
+
+        def _debug_cand(msg):
+            print "[%d] %s" % (VMPoolAdamPathFinder.candidate_search_count, msg)
+
         # We iterate searching for case 1, and queue up any instances
         # of cases 2 and 3 we find for later, in case we need them.
         case_two, case_three = [ ], [ ]
 
         displace_from_host = on_behalf_of.to_host
-        print "|   finding candidates to displace from %s" % displace_from_host
+        _debug_cand("finding candidates to displace from %s" %
+                    displace_from_host)
 
         for vm_name in current_state.vmhost2vms[displace_from_host.name]:
             if vm_name in locked_vms:
-                print "|1  - %s is locked; not considering" % vm_name
+                _debug_cand("1  - %s is locked; not considering" % vm_name)
                 continue
             if vm_name in vms_to_migrate:
                 to_host = self.target_host(vm_name)
                 migration = VMmigration(vm_name, displace_from_host, to_host)
                 if migration is on_behalf_of: 
                     raise RuntimeError, "shouldn't be considering %s which displacement is on behalf of" % on_behalf_of
-                print "|1  ? consider required displacement %s" % migration
+                _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
-                print "|1  + saved case 2: %s ! %s" % (vm_name, to_host)
+                _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host))
                 yield migration
             else:
                 case_three.append(vm_name)
-                print "|1  + saved case 3: %s" % vm_name
+                _debug_cand("1  + saved case 3: %s" % vm_name)
 
         # need to consider all the possible places we could displace these VMs to
         for to_host_name in current_state.vmhost_names():
@@ -236,7 +244,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 if to_host == final_host:
                     continue
                 migration = VMmigration(vm_name, displace_from_host, to_host)
-                print "|2  ? consider extra displacement: %s" % migration
+                _debug_cand("2  ? consider extra displacement: %s" % migration)
                 yield migration
 
         # need to consider all the possible places we could displace these VMs to
@@ -246,10 +254,10 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 continue
             for vm_name in case_three:
                 migration = VMmigration(vm_name, displace_from_host, to_host)
-                print "|3  ? consider extra displacement: %s" % migration
+                _debug_cand("3  ? consider extra displacement: %s" % migration)
                 yield migration
 
-        print "| no more displacement candidates"
+        _debug_cand("no more displacement candidates")
 
     def target_host(self, vm_name):
         return self.state_pre_final_provisions.get_vm_vmhost(vm_name)
