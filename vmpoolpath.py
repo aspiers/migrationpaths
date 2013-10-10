@@ -35,7 +35,9 @@ class VMPoolPath:
         if self.vms_to_shutdown:
             print "- First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
 
-        print "  Start: ", self.post_shutdown_state
+        current_state = self.post_shutdown_state
+        print "  Start: ", current_state
+        current_state.show_ascii_meters(10, 80, indent='  ')
         # for state in self.path[1:]:
         #     prev = self.previous[state]
         #     from_state = self.cache[prev]
@@ -46,6 +48,9 @@ class VMPoolPath:
             print "! %s: %s -> %s  cost %d" % \
                 (migration.vm, migration.from_host,
                  migration.to_host, migration.cost())
+            current_state = current_state.migrate(migration.vm.name,
+                                                  migration.to_host.name)
+            current_state.show_ascii_meters(10, 80, indent='  ')
         print "  End:   ", self.pre_provision_state
 
         if self.vms_to_provision:
