@@ -171,6 +171,13 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         return vms_to_migrate
 
+    # When iterating through candidate migrations for displacement,
+    # some will only be accepted if we can perform the migration
+    # immediately, rather than having to recursively find other
+    # displacements first.
+    ALLOW_RECURSION = 0
+    PROHIBIT_RECURSION = 1
+
     def _displace(self, current_state, on_behalf_of,
                   vms_to_migrate, locked_vms):
         """Allow the on_behalf_of migration to take place by
@@ -191,7 +198,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             an updated copy of the provided locked_vms dict, taking into
             account any VMs which have been migrated
 
-        Recursively calls _solve_to() / _displace() as necessary.
+        Recursively calls _displace() / _solve_single() as necessary.
         """
         usurper_name = on_behalf_of.vm.name
         print "  - displace from %s for %s" % (on_behalf_of.to_host, usurper_name)
@@ -208,13 +215,24 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             self._find_displacement_candidates(current_state, vms_to_migrate,
                                                on_behalf_of,
                                                locked_for_displacement)
-        for migration in candidates:
-            (partial_displacements,
-             partially_displaced_state,
-             partially_displaced_vms_to_migrate,
-             partially_displaced_locked_vms) = \
-                self._solve_to(current_state, migration, vms_to_migrate,
-                               locked_for_displacement)
+        for migration, recursion_mode in candidates:
+            if recursion_mode == self.PROHIBIT_RECURSION:
+                (partial_displacements,
+                 partially_displaced_state,
+                 partially_displaced_vms_to_migrate) = \
+                    self._solve_single(current_state, migration, vms_to_migrate)
+                partially_displaced_locked_vms = locked_for_displacement
+            elif recursion_mode == self.ALLOW_RECURSION:
+                (partial_displacements,
+                 partially_displaced_state,
+                 partially_displaced_vms_to_migrate,
+                 partially_displaced_locked_vms) = \
+                    self._solve_to(current_state, migration, vms_to_migrate,
+                                   locked_for_displacement)
+            else:
+                raise RuntimeError("BUG: unknown recursion_mode %s" %
+                                   recursion_mode)
+
             if partial_displacements is None:
                 continue
             print "  + path to unvalidated displacement: %s" % \
@@ -297,12 +315,13 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         Migration candidates are sorted in descending priority as
         follows:
 
-        1. migrating VMs which we need to move anyway, to their
-           final destination
-        2. migrating VMs which we need to move anyway, to a non-final
+        1. migrating VMs which we need to move anyway to their
+           final destination, directly or indirectly via displacment
+        2. migrating VMs which we need to move anyway, directly to a non-final
            destination
-        3. migrating VMs which we wouldn't otherwise need to move
-        
+        3. migrating VMs which we wouldn't otherwise need to move,
+           directly away from their non-final destination
+
         This minimises the number of workloads which are potentially
         impacted, and hopefully helps minimise the number of
         required migrations too.
@@ -334,12 +353,16 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
                 _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host))
-                yield migration
+                # We need to perform this migration anyway, so it
+                # shouldn't cost us too dearly to recursively displace
+                # if necessary in order to make it possible.
+                yield (migration, self.ALLOW_RECURSION)
             else:
                 case_three.append(vm_name)
                 _debug_cand("1  + saved case 3: %s" % vm_name)
 
-        # need to consider all the possible places we could displace these VMs to
+        # Case 2: migrating VMs which we need to move anyway, directly
+        # to a non-final destination.
         for to_host_name in current_state.vmhost_names():
             to_host = VMhost.vmhosts[to_host_name]
             if to_host == displace_from_host:
@@ -349,9 +372,12 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                     continue
                 migration = VMmigration(vm_name, displace_from_host, to_host)
                 _debug_cand("2  ? consider extra displacement: %s" % migration)
-                yield migration
+                # This migration isn't ideal, so if it's not directly possible,
+                # try something else instead.
+                yield (migration, self.PROHIBIT_RECURSION)
 
-        # need to consider all the possible places we could displace these VMs to
+        # Case 3. migrating VMs which we wouldn't otherwise need to move,
+        # directly away from their non-final destination
         for to_host_name in current_state.vmhost_names():
             to_host = VMhost.vmhosts[to_host_name]
             if to_host == displace_from_host:
@@ -359,7 +385,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             for vm_name in case_three:
                 migration = VMmigration(vm_name, displace_from_host, to_host)
                 _debug_cand("3  ? consider extra displacement: %s" % migration)
-                yield migration
+                # This migration isn't ideal, so if it's not directly possible,
+                # try something else instead.
+                yield (migration, self.PROHIBIT_RECURSION)
 
         _debug_cand("no more displacement candidates")
 
