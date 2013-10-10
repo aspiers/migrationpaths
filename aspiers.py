@@ -72,8 +72,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             return False
 
     def _solve_to(self, current_state, migration, vms_to_migrate, locked_vms):
-        """Finds a sequence of sane migrations from the
-        current state ending with the given migration.
+        """Finds a sequence of sane migrations from the current state
+        ending with the given migration.
 
         Returns a (path, new_state) tuple:
         path -- the list of migrations from the current state ending
