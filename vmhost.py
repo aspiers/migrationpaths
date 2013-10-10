@@ -18,3 +18,10 @@ class VMhost:
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, VMhost):
+            return self.name == other.name
+        raise RuntimeError, "tried to compare VMhost %s with %s (%s)" % \
+            (self, other.__class__, other)
+
