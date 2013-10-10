@@ -101,13 +101,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
         print "  locked_vms: %s" % ", ".join(locked_vms.keys())
         path = [ migration ]
-        vms_to_migrate = copy.copy(vms_to_migrate)
         vm_name = migration.vm.name
-        if migration.to_host == VMhost.vmhosts[self.target_host(vm_name)]:
-            if vm_name in vms_to_migrate:
-                del vms_to_migrate[vm_name]
-        else:
-            vms_to_migrate[vm_name] = True
+        vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate, migration)
 
         try:
             new_state = \
@@ -137,6 +132,21 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         print "SEGMENT: %s\n" % ", ".join([ str(m) for m in path ])
         return path, new_state, vms_to_migrate
+
+    def _update_vms_to_migrate(self, vms_to_migrate, migration):
+        vms_to_migrate = copy.copy(vms_to_migrate)
+        vm_name = migration.vm.name
+        if migration.to_host == VMhost.vmhosts[self.target_host(vm_name)]:
+            # We're migrating the VM to its final destination -
+            # ensure it's not on the todo list any more.
+            if vm_name in vms_to_migrate:
+                del vms_to_migrate[vm_name]
+        else:
+            # We're migrating the VM *away* from its final destination
+            # so add it (back) to the todo list.
+            vms_to_migrate[vm_name] = True
+
+        return vms_to_migrate
 
     def _displace(self, current_state, on_behalf_of,
                   vms_to_migrate, locked_vms):
