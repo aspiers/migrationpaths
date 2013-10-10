@@ -206,7 +206,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         displace_from_host = on_behalf_of.to_host
 
-        for vm_name in current_state.vmhost2vms[displace_from_host]:
+        for vm_name in current_state.vmhost2vms[displace_from_host.name]:
             if vm_name in locked_vms:
                 print "|1  - %s is locked; not considering" % vm_name
                 continue

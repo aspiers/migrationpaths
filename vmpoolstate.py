@@ -127,7 +127,7 @@ class VMPoolState:
         """Checks whether vm can be moved to to_host.  Returns new
         pool state if sane, otherwise raises a VMPoolStateSanityError.
         """
-        new_state = self.migrate(vm_name, str(to_host))
+        new_state = self.migrate(vm_name, to_host.name)
         new_state.check_sane()
         return new_state
 
