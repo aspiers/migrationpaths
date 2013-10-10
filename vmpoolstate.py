@@ -44,7 +44,7 @@ class VMPoolState:
         if vmhost_name in self.vmhost2vms:
             raise ValueError, "tried to init vmhost %s twice" % vmhost_name
         self.vmhost2vms[vmhost_name] = { }
-        
+
     def init_by_vmhosts(self, state):
         """Adds multiple VMs and VM hosts in one go, changing the
         current state in place.  The placement is determined by the
@@ -117,7 +117,7 @@ class VMPoolState:
         if from_host == to_host:
             raise RuntimeError, "can't migrate %s from %s to same vmhost" % \
                   (vm_name, from_host)
-            
+
         #new = self.clone()
         new = deepcopy(self)
         new.remove_vm(vm_name)
