@@ -80,7 +80,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """Finds a sequence of sane migrations from the current state
         ending with the given migration.
 
-        Returns a (path, new_state) tuple:
+        Returns a (path, new_state, vms_to_migrate) tuple:
         path -- the list of migrations from the current state ending
                 with the given migration, or None if no such path is found
         new_state -- the new state reached by the given path, or None
