@@ -10,14 +10,33 @@ from vm import VM
 from vmhost import VMhost
 
 class VMPoolAdamPathFinder(VMPoolPathFinder):
-    """This class enables storage of the state data used during the
-    discovery of the path inside an instance.  This makes the code
-    thread-safe, allowing discovery of multiple paths in parallel (one
-    instance of this class for each).  It also makes the code a bit
-    cleaner (albeit slightly more complex) through not having to pass
-    several state variables around.
+    """Recursive path finding algorithm based around the concept of a
+    TODO list containing which VMs have not yet reached their final
+    destination host.  The TODO list is iterated over until it is
+    empty.  If a VM cannot be immediately migrated to its final
+    destination host, other VMs on that host are displaced in order to
+    accommodate it.  Displacement favours migrations already in the
+    TODO list, to avoid accumulating unnecessary "migration debt".
 
-    N.B. Instances should not be reused for multiple runs.
+    Displacement happens recursively in a manner which travels down
+    the dependency tree (i.e. if migration B is required before
+    migration is A possible, then A is B's parent in the tree), until
+    we reach a leaf node migration which can be performed immediately.
+    Then its ancestor migrations can be performed in reverse order
+    by backtracking up the tree again.
+
+    Each migration enacted will result in an update of the TODO list
+    (passed around in a variable named ``vms_to_migrate`` or similar).
+
+    We also need to lock VMs in place when exploring potential
+    displacement paths, to exclude them from the list of candidates
+    for displacement.  This helps break mutual dependency cycles
+    (e.g. swapping a pair of VMs between different hosts when they
+    cannot co-exist on the same host), which would otherwise cause
+    infinitely deep recursion.
+
+    Instances of this class should not be reused for multiple
+    path-finding runs.
     """
 
     def run(self):
