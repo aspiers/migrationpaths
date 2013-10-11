@@ -32,14 +32,12 @@ class VMPoolPathFinder:
     def check_endpoints_sane(self):
         try:
             self.initial_state.check_sane()
-            print "start state sane:", self.initial_state
         except VMPoolStateSanityError, e:
             sys.stderr.write("start state not sane: %s\n" % e)
             sys.exit(1)
 
         try:
             self.final_state.check_sane()
-            print "end state sane:  ", self.final_state
         except VMPoolStateSanityError, e:
             sys.stderr.write("end state not sane: %s\n" % e)
             sys.exit(1)
