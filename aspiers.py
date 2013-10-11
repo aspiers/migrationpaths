@@ -225,6 +225,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                  partially_displaced_state,
                  partially_displaced_vms_to_migrate) = \
                     self._solve_single(current_state, migration, vms_to_migrate)
+                # no change to which VMs are locked
                 partially_displaced_locked_vms = locked_for_displacement
             elif recursion_mode == self.ALLOW_RECURSION:
                 (partial_displacements,
