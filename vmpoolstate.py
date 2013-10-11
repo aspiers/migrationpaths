@@ -217,14 +217,15 @@ class VMPoolState:
         doms += [ (vm.name, vm.ram) for vm in vms ]
         ram_used = reduce(lambda acc, dom: acc + dom[1], doms, 0)
         spare_ram = vmhost.ram - ram_used
-        doms += [ ('%d' % spare_ram, spare_ram) ]
+        if spare_ram > 0:
+            doms += [ ('%d' % spare_ram, spare_ram) ]
 
-        for dom_name, dom_ram in doms:
+        for i, (dom_name, dom_ram) in enumerate(doms):
             length = float(dom_ram) / vmhost.ram * width
             offset += length
             dom_width = int(offset) - len(meter)
-            format_str = "%%-%d.%ds" % (dom_width, dom_width)
-            text = "|%s" % dom_name
-            meter += format_str % text
+            if i > 0:
+                meter += '|'
+            meter += "{0:^{1}.{1}}".format(dom_name, dom_width - 1)
 
-        return meter + '|'
+        return "[%s]" % meter
