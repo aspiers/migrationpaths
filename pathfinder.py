@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+import sys
+
+from vmpoolstateerrors import VMPoolStateSanityError
 from vmpoolpath import VMPoolPath
 
 class VMPoolPathFinder:
