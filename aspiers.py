@@ -321,6 +321,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             displacement_sufficient = False
 
         path = [ on_behalf_of ]
+        vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate,
+                                                     on_behalf_of)
 
         if displacement_sufficient:
             print "  << %s achieves effective displacement" % migration
