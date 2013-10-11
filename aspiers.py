@@ -38,10 +38,11 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if self._solved(current_state, vms_to_migrate):
             return []
 
-        print ". Looking for path from"
-        print "       %s " % current_state
-        print "    to %s"  % self.state_pre_final_provisions
-        print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
+        print "Looking for path from:"
+        current_state.show_ascii_meters(10, 80, indent='  ')
+        print "to:"
+        self.state_pre_final_provisions.show_ascii_meters(10, 80, indent='  ')
+        print "vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
 
         path = []
         while len(vms_to_migrate) > 0:
