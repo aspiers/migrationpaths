@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from vodict import ValueOrderedDictionary 
+from vodict import ValueOrderedDictionary
 from vmpoolstateerrors import VMPoolStateSanityError
 from pathfinder import VMPoolPathFinder
 from vmmigration import VMmigration
@@ -50,7 +50,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
     #         check for shorter path to v
     #         if v not in T:
     #             add v to T
-    #         
+    #
     #     // u is now "explored"
     #     move u from T to D
 
@@ -101,7 +101,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
 
     def explore_neighbours(self, current_state):
         """Explore all neighbours from current state."""
-        
+
         # Assuming we're given the end state in advance, optimise the
         # search order by prioritising exploration of neighbours
         # resulting from migrating VMs which need to be migrated, over
@@ -144,7 +144,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
                 new = new_state.unique()
                 if new not in self.done and new not in self.todo:
                     self.todo.insert(new, self.distances[new_state.unique()])
-        
+
     def check_migration(self, migration, current_state, new_state):
         """Check whether we've found a quicker way of getting from the
         initial state to new_state.
@@ -185,4 +185,3 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
             migration_sequence.insert(0, migration)
 
         return migration_sequence
-    
