@@ -174,6 +174,10 @@ class VMPoolPath:
             print self.initial_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = shutdown_highlights)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "First shut down VMs: %s" % \
                 ", ".join(sorted(self.vms_to_shutdown))
 
@@ -182,6 +186,10 @@ class VMPoolPath:
             print "Shutdown phase\n"
             print self.state_post_initial_shutdowns.ascii_meters(
                 host_width, meter_width)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "Shutdown complete."
 
         current_state = self.state_post_initial_shutdowns
@@ -193,6 +201,10 @@ class VMPoolPath:
             print current_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = highlight)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "%s: %s -> %s  cost %d" % \
                 (migration.vm.name, migration.from_host.name,
                  migration.to_host.name, migration.cost())
@@ -205,6 +217,10 @@ class VMPoolPath:
             print current_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = highlight)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "Migration of %s to %s complete." % \
                 (migration.vm.name, migration.to_host.name)
 
@@ -214,6 +230,10 @@ class VMPoolPath:
             print "Provisioning phase\n"
             print current_state.ascii_meters(
                 host_width, meter_width)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "Finally provision VMs: %s" % \
                 ", ".join(sorted(self.vms_to_provision))
 
@@ -223,6 +243,10 @@ class VMPoolPath:
             print self.final_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = provision_highlights)
+            print "Target state:\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = after_highlights)
             print "Provisioning complete.\n"
 
         print "Path found with %d migrations and cost %d" % \
