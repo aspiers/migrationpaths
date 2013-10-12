@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import unittest
+import sys
 
 import testcases
 from vmpoolstate import VMPoolState
@@ -10,7 +11,7 @@ from aspiers import VMPoolAdamPathFinder
 #STRATEGY = VMPoolShortestPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
-if False:
+if len(sys.argv) >= 2 and sys.argv[1] == 'random':
     stateA, stateB, expected_path = testcases.random.identical_hosts()
 else:
     stateA, stateB, expected_path = testcases.fixed.case_chain6()
