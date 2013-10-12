@@ -13,7 +13,7 @@ from aspiers import VMPoolAdamPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
 while True:
-    stateA, stateB, expected_path = testcases.random.identical_hosts()
+    stateA, stateB, expected_path = testcases.random.identical_hosts(2, 4)
 
     path_finder = STRATEGY(stateA, stateB)
     try:
