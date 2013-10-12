@@ -10,12 +10,16 @@ from vmhost import VMhost
 from vmpoolstate import VMPoolState
 from vmpoolstateerrors import *
 
-def randomly_populate_hosts(state, max_vms=None):
+def randomly_populate_hosts(state, max_vms=None, min_vm_ram=None, max_vm_ram=None):
     i = 0
+    if min_vm_ram is None:
+        min_vm_ram = 128
     for vmhost in state.vmhosts():
+        if max_vm_ram is None:
+            max_vm_ram = vmhost.ram
         free_ram = vmhost.ram - vmhost.dom0_ram
         while True:
-            vm_ram = random.randint(128, vmhost.ram)
+            vm_ram = random.randint(min_vm_ram, max_vm_ram)
             if vm_ram > free_ram:
                 break
             vm = VM("vm%02d" % (i+1), 'x86_64', vm_ram)
@@ -51,7 +55,8 @@ def randomly_shuffle(state, n=100):
                 pass
     return state
 
-def identical_hosts(num_hosts=10, max_vms=None):
+def identical_hosts(num_hosts=10, max_vms=None,
+                    min_vm_ram=None, max_vm_ram=None):
     VM.reset()
     VMhost.reset()
 
@@ -60,7 +65,9 @@ def identical_hosts(num_hosts=10, max_vms=None):
         vmhost = VMhost("host%02d" % (i+1), 'x86_64', 4096, 280)
         stateA.init_vmhost(vmhost.name)
 
-    randomly_populate_hosts(stateA, max_vms)
+    randomly_populate_hosts(stateA, max_vms,
+                            min_vm_ram=min_vm_ram,
+                            max_vm_ram=max_vm_ram)
     stateB = randomly_shuffle(copy.copy(stateA))
 
     return (stateA, stateB, "no idea what path to expect!")
