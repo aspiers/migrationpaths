@@ -71,6 +71,31 @@ def case_swap_with_one_temp():
     """
     return (stateA, stateB, expected_path)
 
+def case_complex_swap():
+    host1 = VMhost('host1', 'x86_64', 4096, 280)
+    host2 = VMhost('host2', 'x86_64', 4096, 280)
+    host3 = VMhost('host3', 'x86_64', 4096, 280)
+    vm1 = VM('vm1', 'x86_64', 300)
+    vm2 = VM('vm2', 'x86_64', 3000)
+    vm3 = VM('vm3', 'x86_64', 3700)
+    stateA = {
+        'host1' : [ vm1 ],
+        'host2' : [ vm2 ],
+        'host3' : [ vm3 ],
+        }
+    stateB = {
+        'host1' : [ vm1 ],
+        'host2' : [ vm3 ],
+        'host3' : [ vm2 ],
+        }
+    expected_path = """\
+        shutdown: 
+        ! vm1@256: host1@4096 -> host2@4096  cost 256
+        ! vm2@256: host2@4096 -> host1@4096  cost 256
+        provision: 
+    """
+    return (stateA, stateB, expected_path)
+
 def case_shutdown_and_swap():
     host1 = VMhost('host1', 'x86_64', 4096)
     host2 = VMhost('host2', 'x86_64', 3048)
