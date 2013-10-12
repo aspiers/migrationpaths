@@ -87,12 +87,7 @@ class VMPoolPath:
         current_state = self.post_shutdown_state
         print "  Start: ", current_state
         current_state.show_ascii_meters(10, 80, indent='  ')
-        # for state in self.path[1:]:
-        #     prev = self.previous[state]
-        #     from_state = self.cache[prev]
-        #     (vm, to_host, cost) = self.route[state]
-        #     from_host = from_state.vm2vmhost[vm]
-        #     print "%s: %s -> %s  cost %d" % (vm, from_host, to_host, cost)
+
         for migration in self.migration_sequence:
             print "! %s: %s -> %s  cost %d" % \
                 (migration.vm, migration.from_host,
