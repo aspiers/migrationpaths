@@ -92,5 +92,26 @@ class VMPoolPathFinder:
         if level >= self._debug_level:
             self._debug += message + "\n"
 
+    def _get_vm_highlights(self, vms_to_migrate, locked_vms):
+        vm_highlights = { }
+        for vm_name in vms_to_migrate:
+            vm_highlights[vm_name] = ['yellow']
+        for vm_name in locked_vms:
+            color = 'red' if vm_name in vms_to_migrate else 'magenta'
+            vm_highlights[vm_name] = [color]
+        return vm_highlights
+
     def get_debug(self):
         return self._debug
+
+    def debug_status(self, current_state, vms_to_migrate, locked_vms,
+                     extra_vm_highlights={}, vmhost_highlights={}):
+        vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
+        vm_highlights.update(extra_vm_highlights)
+        self.debug(2, current_state.ascii_meters(
+                10, 80, indent='  ',
+                highlight_vms=vm_highlights,
+                highlight_vmhosts=vmhost_highlights))
+
+        self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
+        self.debug(2, "  locked_vms: %s" % ", ".join(locked_vms.keys()))
