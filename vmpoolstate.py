@@ -200,13 +200,16 @@ class VMPoolState:
         return "%s(%s)" % (self.__class__.__name__, self.unique())
 
     def ascii_meters(self, host_width, meter_width, indent='',
-                     highlight_vms={}):
+                     highlight_vmhosts={}, highlight_vms={}):
         s = ''
         for vmhost_name in sorted(self.vmhost_names()):
             vmhost = VMhost.vmhosts[vmhost_name]
             meter = self.vmhost_ascii_meter(vmhost, meter_width, highlight_vms)
+            args = [ None, None, ['bold'] ]
+            if vmhost_name in highlight_vmhosts:
+                args = highlight_vmhosts[vmhost_name]
             s += "{0}{1:{2}} {3}\n".format(indent,
-                                           colored(vmhost, attrs=['bold']),
+                                           colored(vmhost, *args),
                                            host_width, meter)
         return s
 
