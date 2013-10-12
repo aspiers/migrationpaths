@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import time
 
 from vm import VM
 from vmhost import VMhost
@@ -127,8 +128,11 @@ class VMPoolPath:
             return str(self) == str(other)
         return NotImplemented
 
-    def next_screen(self, clear_screen):
-        raw_input("\nPress Enter to continue > ")
+    def next_screen(self, clear_screen, sleep=0):
+        if sleep == 0:
+            raw_input("\nPress Enter to continue > ")
+        else:
+            time.sleep(sleep)
         if clear_screen:
             os.system("clear")
         else:
@@ -169,7 +173,7 @@ class VMPoolPath:
             highlight_vms = highlights['after'])
         return s + "\n"
 
-    def animate(self, clear_screen):
+    def animate(self, clear_screen, sleep=0):
         if clear_screen:
             os.system("clear")
 
@@ -183,7 +187,7 @@ class VMPoolPath:
         print self.summary()
 
         if self.vms_to_shutdown:
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Shutdown phase\n"
             print "Current state:\n"
@@ -197,7 +201,7 @@ class VMPoolPath:
             print "First shut down VMs: %s" % \
                 ", ".join(sorted(self.vms_to_shutdown))
 
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Shutdown phase\n"
             print "Current state:\n"
@@ -211,7 +215,7 @@ class VMPoolPath:
 
         current_state = self.state_post_initial_shutdowns
         for migration in self.migration_sequence:
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Migration phase\n"
             print "Current state:\n"
@@ -227,7 +231,7 @@ class VMPoolPath:
                 (migration.vm.name, migration.from_host.name,
                  migration.to_host.name, migration.cost())
 
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Migration phase\n"
             print "Current state:\n"
@@ -244,7 +248,7 @@ class VMPoolPath:
                 (migration.vm.name, migration.to_host.name)
 
         if self.vms_to_provision:
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Provisioning phase\n"
             print "Current state:\n"
@@ -257,7 +261,7 @@ class VMPoolPath:
             print "Finally provision VMs: %s" % \
                 ", ".join(sorted(self.vms_to_provision))
 
-            self.next_screen(clear_screen)
+            self.next_screen(clear_screen, sleep)
 
             print "Provisioning phase\n"
             print "Current state:\n"
