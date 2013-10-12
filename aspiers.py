@@ -119,7 +119,20 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         Recursively calls _displace() when necessary.
         """
         self.debug(2, "\nsolve_to %s from:" % migration)
-        self.debug(2, current_state.ascii_meters(10, 80, indent='  '))
+
+        vm_highlights = { }
+        for vm_name in vms_to_migrate:
+            vm_highlights[vm_name] = ['yellow']
+        for vm_name in locked_vms:
+            vm_highlights[vm_name] = ['red'   ]
+        vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
+
+        vmhost_highlights = { migration.to_host.name :
+                                  ('white', 'on_green', ['bold']) }
+        self.debug(2, current_state.ascii_meters(
+                10, 80, indent='  ',
+                highlight_vms=vm_highlights,
+                highlight_vmhosts=vmhost_highlights))
 
         self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
         self.debug(2, "  locked_vms: %s" % ", ".join(locked_vms.keys()))
