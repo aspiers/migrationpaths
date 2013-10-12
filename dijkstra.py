@@ -59,13 +59,13 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
 
         # Nodes which still need to be explored, sorted by distance ascending.
         self.todo = ValueOrderedDictionary()
-        self.todo[self.initial_state.unique()] = initial_cost
+        self.todo[self.path.initial_state.unique()] = initial_cost
 
         # Nodes which have already been fully explored.
         self.done = { }
 
         # Distances for all nodes (both todo and done)
-        self.distances = { self.initial_state.unique() : initial_cost }
+        self.distances = { self.path.initial_state.unique() : initial_cost }
 
         # Mapping from any node in shortest path to its previous node
         self.previous = { }
@@ -75,7 +75,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
         self.route = { }
 
     def run(self):
-        self.end = self.state_pre_final_provisions.unique()
+        self.end = self.path.state_pre_final_provisions.unique()
         while len(self.todo) > 0:
             print "todo list:"
             for s in self.todo:
@@ -110,7 +110,7 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
         unmigrated_vms = [ ]
         assert current_state
         for vm in current_state.vm_names():
-            if vm in self.vms_to_migrate:
+            if vm in self.path.vms_to_migrate:
                 migrated_vms.append(vm)
             else:
                 unmigrated_vms.append(vm)

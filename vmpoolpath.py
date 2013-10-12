@@ -12,22 +12,59 @@ class VMPoolPath:
     """
 
     def __init__(self, initial_state, final_state):
-        self.vms_to_shutdown = [ ]
-        self.vms_to_provision = [ ]
+        self.initial_state = initial_state
+        self.final_state = final_state
+
         self.path = [ ]
         self.cost = 0
 
-    def set_vms_to_shutdown(self, vms_to_shutdown):
-        self.vms_to_shutdown = vms_to_shutdown
+    def compare_endpoints(self):
+        """Figure out which VMs need to be shutdown first, which need
+        to be migrated next, and finally which need to be provisioned
+        at the end.
+        """
+        self.vms_to_shutdown = { }
+        self.vms_to_migrate  = { }
+        for start_vm in self.initial_state.vm_names():
+            if start_vm not in self.final_state.vm_names():
+                self.vms_to_shutdown[start_vm] = True
+            else:
+                from_host = self.initial_state.vm2vmhost[start_vm]
+                to_host   = self.final_state.vm2vmhost[start_vm]
+                if from_host != to_host:
+                    self.vms_to_migrate[start_vm] = True
 
-    def set_post_shutdown_state(self, state):
-        self.post_shutdown_state = state
+        self.vms_to_provision = { }
+        for end_vm in self.final_state.vm_names():
+            if end_vm not in self.initial_state.vm_names():
+                self.vms_to_provision[end_vm] = \
+                    self.final_state.vm2vmhost[end_vm]
 
-    def set_pre_provision_state(self, state):
-        self.pre_provision_state = state
+        self.state_post_initial_shutdowns = self.do_initial_shutdowns()
+        self.state_pre_final_provisions = self.reverse_final_provisions()
 
-    def set_vms_to_provision(self, vms_to_provision):
-        self.vms_to_provision = vms_to_provision
+    def do_initial_shutdowns(self):
+        """Returns the pool state which results after doing all
+        initial shutdowns.  Notice that the shutdowns can be done in
+        any order, or in parallel.
+        """
+        cur = self.initial_state
+        if len(self.vms_to_shutdown) > 0:
+            for vm in self.vms_to_shutdown:
+                cur = cur.shutdown_vm(vm)
+        return cur
+
+    def reverse_final_provisions(self):
+        """Returns the pool state prior to performing the final set of
+        provisioning actions.  Notice that these can be done in any
+        order, or in parallel.
+        """
+        cur = self.final_state
+        if len(self.vms_to_provision) > 0:
+            for vm, vmhost in self.vms_to_provision.items():
+                # Not a typo - we're going backwards here:
+                cur = cur.shutdown_vm(vm)
+        return cur
 
     def set_migration_sequence(self, seq):
         self.migration_sequence = seq
@@ -66,13 +103,15 @@ class VMPoolPath:
 
     def dump(self, indent=''):
         s = ''
-        s += "%sshutdown: %s\n" % (indent, ", ".join(sorted(self.vms_to_shutdown)))
+        s += "%sshutdown: %s\n" % \
+            (indent, ", ".join(sorted(self.vms_to_shutdown)))
         for migration in self.migration_sequence:
             s += "%s! %s: %s -> %s  cost %d\n" % \
                 (indent,
                  migration.vm, migration.from_host,
                  migration.to_host, migration.cost())
-        s += "%sprovision: %s\n" % (indent, ", ".join(sorted(self.vms_to_provision)))
+        s += "%sprovision: %s\n" % \
+            (indent, ", ".join(sorted(self.vms_to_provision)))
         return s
 
     def __str__(self):

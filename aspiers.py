@@ -40,8 +40,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     """
 
     def run(self):
-        return self._solve(self.state_post_initial_shutdowns,
-                           self.vms_to_migrate)
+        return self._solve(self.path.state_post_initial_shutdowns,
+                           self.path.vms_to_migrate)
 
     def _solve(self, current_state, vms_to_migrate):
         """Returns a list of sane migrations which transform the
@@ -57,7 +57,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if self._solved(current_state, vms_to_migrate):
             return []
 
-        final_state = self.state_pre_final_provisions
+        final_state = self.path.state_pre_final_provisions
         self.debug(2, "Looking for path from:")
         self.debug(2, current_state.ascii_meters(10, 80, indent='  '))
         self.debug(2, "to:")
@@ -84,7 +84,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         return path
 
     def _solved(self, current_state, vms_to_migrate):
-        if current_state == self.state_pre_final_provisions:
+        if current_state == self.path.state_pre_final_provisions:
             if len(vms_to_migrate) == 0:
                 return True
             else:
@@ -439,5 +439,5 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         _debug_cand("no more displacement candidates")
 
     def target_host(self, vm_name):
-        target_host_name = self.state_pre_final_provisions.get_vm_vmhost(vm_name)
+        target_host_name = self.path.state_pre_final_provisions.get_vm_vmhost(vm_name)
         return VMhost.vmhosts[target_host_name]
