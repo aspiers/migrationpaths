@@ -12,6 +12,7 @@ from vmpoolstateerrors import *
 
 def randomly_populate_hosts(state, max_vms=None, min_vm_ram=None, max_vm_ram=None):
     i = 0
+    width = 2 if max_vms is None else len(str(max_vms))
     if min_vm_ram is None:
         min_vm_ram = 128
     for vmhost in state.vmhosts():
@@ -22,7 +23,7 @@ def randomly_populate_hosts(state, max_vms=None, min_vm_ram=None, max_vm_ram=Non
             vm_ram = random.randint(min_vm_ram, max_vm_ram)
             if vm_ram > free_ram:
                 break
-            vm = VM("vm%02d" % (i+1), 'x86_64', vm_ram)
+            vm = VM("vm{0:0{1}}".format(i+1, width), 'x86_64', vm_ram)
             state.add_vm(vm.name, vmhost.name)
             free_ram -= vm_ram
             i += 1
@@ -61,8 +62,9 @@ def identical_hosts(num_hosts=10, max_vms=None,
     VMhost.reset()
 
     stateA = VMPoolState()
+    width = len(str(num_hosts))
     for i in xrange(num_hosts):
-        vmhost = VMhost("host%02d" % (i+1), 'x86_64', 4096, 280)
+        vmhost = VMhost("host{0:0{1}}".format(i+1, width), 'x86_64', 4096, 280)
         stateA.init_vmhost(vmhost.name)
 
     randomly_populate_hosts(stateA, max_vms,
