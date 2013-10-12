@@ -47,6 +47,9 @@ def randomly_shuffle(state, n=100):
     return state
 
 def identical_hosts():
+    VM.reset()
+    VMhost.reset()
+
     stateA = VMPoolState()
     for i in xrange(10):
         vmhost = VMhost("host%02d" % (i+1), 'x86_64', 4096)
