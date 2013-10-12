@@ -74,9 +74,12 @@ class VMPoolPath:
     def set_cost(self, cost):
         self.cost = cost
 
-    def report(self):
-        print "Short path found with %d migrations and cost %d:" % \
+    def summary(self):
+        return "Path found with %d migrations and cost %d" % \
             (len(self.migration_sequence), self.cost)
+
+    def report(self):
+        print self.summary()
         if self.vms_to_shutdown:
             print "- First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
 
@@ -165,8 +168,7 @@ class VMPoolPath:
             host_width, meter_width,
             highlight_vms = after_highlights)
 
-        print "Path found with %d migrations and cost %d" % \
-            (len(self.migration_sequence), self.cost)
+        print self.summary()
 
         if self.vms_to_shutdown:
             self.next_screen(clear_screen)
@@ -256,5 +258,4 @@ class VMPoolPath:
                 highlight_vms = after_highlights)
             print "Provisioning complete.\n"
 
-        print "Path found with %d migrations and cost %d" % \
-            (len(self.migration_sequence), self.cost)
+        print self.summary()
