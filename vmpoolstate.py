@@ -4,6 +4,8 @@ from copy import deepcopy
 import os
 import sys
 
+from termcolor import colored
+
 from types import *
 from vm import VM
 from vmhost import VMhost
@@ -194,37 +196,51 @@ class VMPoolState:
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.unique())
 
-    def ascii_meters(self, host_width, meter_width, indent=''):
+    def ascii_meters(self, host_width, meter_width, indent='',
+                     highlight_vms={}):
         s = ''
         for vmhost_name in sorted(self.vmhost_names()):
             vmhost = VMhost.vmhosts[vmhost_name]
-            meter = self.vmhost_ascii_meter(vmhost, meter_width)
-            format_str = "%%s%%-%d.%ds %%s" % (host_width, host_width)
-            s += format_str % (indent, vmhost, meter) + "\n"
+            meter = self.vmhost_ascii_meter(vmhost, meter_width, highlight_vms)
+            s += "{0}{1:{2}} {3}\n".format(indent,
+                                           colored(vmhost, attrs=['bold']),
+                                           host_width, meter)
         return s
 
-    def vmhost_ascii_meter(self, vmhost, width):
+    def vmhost_ascii_meter(self, vmhost, width, highlight_vms):
         width -= 1 # allow space for trailing '|'
         vm_names = self.vmhost2vms[vmhost.name].keys()
         vm_names.sort()
         vms = [ VM.vms[vm_name] for vm_name in vm_names ]
-        meter = ''
-        offset = 0.0
         ram_used = 0
-
         doms  = [ ('dom0', VMPoolState.dom0_RAM_required) ]
         doms += [ (vm.name, vm.ram) for vm in vms ]
         ram_used = reduce(lambda acc, dom: acc + dom[1], doms, 0)
         spare_ram = vmhost.ram - ram_used
         if spare_ram > 0:
-            doms += [ ('%d' % spare_ram, spare_ram) ]
+            spare_ram_label = '%d' % spare_ram
+            doms += [ (spare_ram_label, spare_ram) ]
+            highlight_vms[spare_ram_label] = ['grey', None, ['bold']]
 
+        meter = ''
+        printable_char_count = 0
+        offset = 0.0
         for i, (dom_name, dom_ram) in enumerate(doms):
             length = float(dom_ram) / vmhost.ram * width
             offset += length
-            dom_width = int(offset) - len(meter)
+            dom_width = int(offset) - printable_char_count
+            dom_text = ''
             if i > 0:
                 meter += '|'
-            meter += "{0:^{1}.{1}}".format(dom_name, dom_width - 1)
+                printable_char_count += 1
+            if dom_width <= 1:
+                raise RuntimeError("dom labelled '%s' had width %d" %
+                                   (dom_name, dom_width))
+            dom_text = "{0:^{1}.{1}}".format(dom_name, dom_width - 1)
+            printable_char_count += len(dom_text)
+            if dom_name in highlight_vms:
+                args = highlight_vms[dom_name]
+                dom_text = colored(dom_text, *args)
+            meter += dom_text
 
         return "[%s]" % meter
