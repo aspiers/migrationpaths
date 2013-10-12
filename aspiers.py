@@ -322,7 +322,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(2, "\nrecurse_displacement for %s" % on_behalf_of)
 
         try:
-            displaced_state = \
+            current_state = \
                 current_state.check_migration_sane(on_behalf_of.vm.name,
                                                    on_behalf_of.to_host)
             displacement_sufficient = True
@@ -335,21 +335,21 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         if displacement_sufficient:
             self.debug(2, "  << %s achieves effective displacement" % migration)
-            return path, displaced_state, vms_to_migrate, locked_vms
+            return path, current_state, vms_to_migrate, locked_vms
         else:
             self.debug(2, "  + %s doesn't achieve effective displacement" % \
                            migration)
             # keep on displacing
-            rest_path, displaced_state, displaced_vms_to_migrate, locked_vms = \
-                self._displace(displaced_state, migration,
-                               displaced_vms_to_migrate, locked_vms)
+            rest_path, current_state, displaced_vms_to_migrate, locked_vms = \
+                self._displace(current_state, migration,
+                               vms_to_migrate, locked_vms)
             if rest_path is None:
                 self.debug(2, "  << couldn't displace enough; give up on this line")
                 return None, None, None, None
 
             self.debug(2, "  << finished displacement:")
             self.debug(2, "     [%s]" % ", ".join([ str(m) for m in displacements ]))
-            return path + rest_path, displaced_state, \
+            return path + rest_path, current_state, \
                 displaced_vms_to_migrate, locked_vms
 
     def _find_displacement_candidates(self, current_state, vms_to_migrate,
