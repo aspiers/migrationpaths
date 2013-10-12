@@ -30,6 +30,15 @@ class VMPoolPathFinder:
         # Did we find a path yet?
         self.found = False
 
+        self.check_endpoints_sane()
+
+        if hasattr(self, 'path'):
+            raise RuntimeError, \
+                  "cannot reuse %s instance" % self.__class__.__name__
+
+        self.path = VMPoolPath(self.initial_state, self.final_state)
+        self.path.compare_endpoints()
+
         self.init()
 
     def init(self):
@@ -49,15 +58,6 @@ class VMPoolPathFinder:
             sys.exit(1)
 
     def find_path(self):
-        self.check_endpoints_sane()
-
-        if hasattr(self, 'path'):
-            raise RuntimeError, \
-                  "cannot reuse %s instance" % self.__class__.__name__
-
-        self.path = VMPoolPath(self.initial_state, self.final_state)
-        self.path.compare_endpoints()
-
         migrations = self.run()
         if migrations is None:
             return None
