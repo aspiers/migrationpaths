@@ -134,6 +134,27 @@ class VMPoolPath:
         else:
             print "\n----------------------------------------------------\n"
 
+    def get_highlights(self):
+        highlights = {
+            'shutdown' : {
+                vm: ('white', 'on_red', ['bold']) \
+                    for vm in self.vms_to_shutdown
+                },
+            'migrate' : {
+                vm: tuple(['yellow']) \
+                    for vm in self.vms_to_migrate
+                },
+            'provision' : {
+                vm: ('white', 'on_green', ['bold']) \
+                    for vm in self.vms_to_provision
+                },
+            }
+        highlights['before'] = dict(highlights['shutdown'].items() +
+                                    highlights['migrate'].items())
+        highlights['after']  = dict(highlights['provision'].items() +
+                                    highlights['migrate'].items())
+        return highlights
+
     def animate(self, clear_screen):
         if clear_screen:
             os.system("clear")
@@ -141,32 +162,17 @@ class VMPoolPath:
         host_width = 10
         meter_width = 80
 
-        shutdown_highlights = {
-            vm: ('white', 'on_red', ['bold']) \
-                for vm in self.vms_to_shutdown
-        }
-        migrate_highlights = {
-            vm: tuple(['yellow']) \
-                for vm in self.vms_to_migrate
-        }
-        provision_highlights = {
-            vm: ('white', 'on_green', ['bold']) \
-                for vm in self.vms_to_provision
-        }
-        before_highlights = dict(shutdown_highlights.items() +
-                                 migrate_highlights.items())
-        after_highlights  = dict(provision_highlights.items() +
-                                 migrate_highlights.items())
+        highlights = self.get_highlights()
 
         print "\n"
         print "From:\n"
         print self.initial_state.ascii_meters(
             host_width, meter_width,
-            highlight_vms = before_highlights)
+            highlight_vms = highlights['before'])
         print "to:\n"
         print self.final_state.ascii_meters(
             host_width, meter_width,
-            highlight_vms = after_highlights)
+            highlight_vms = highlights['after'])
 
         print self.summary()
 
@@ -177,11 +183,11 @@ class VMPoolPath:
             print "Current state:\n"
             print self.initial_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = shutdown_highlights)
+                highlight_vms = highlights['shutdown'])
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "First shut down VMs: %s" % \
                 ", ".join(sorted(self.vms_to_shutdown))
 
@@ -194,7 +200,7 @@ class VMPoolPath:
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "Shutdown complete."
 
         current_state = self.state_post_initial_shutdowns
@@ -210,7 +216,7 @@ class VMPoolPath:
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "%s: %s -> %s  cost %d" % \
                 (migration.vm.name, migration.from_host.name,
                  migration.to_host.name, migration.cost())
@@ -227,7 +233,7 @@ class VMPoolPath:
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "Migration of %s to %s complete." % \
                 (migration.vm.name, migration.to_host.name)
 
@@ -241,7 +247,7 @@ class VMPoolPath:
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "Finally provision VMs: %s" % \
                 ", ".join(sorted(self.vms_to_provision))
 
@@ -251,11 +257,11 @@ class VMPoolPath:
             print "Current state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = provision_highlights)
+                highlight_vms = highlights['provision'])
             print "Target state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
-                highlight_vms = after_highlights)
+                highlight_vms = highlights['after'])
             print "Provisioning complete.\n"
 
         print self.summary()
