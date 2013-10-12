@@ -57,7 +57,7 @@ def identical_hosts(num_hosts=10, max_vms=None):
 
     stateA = VMPoolState()
     for i in xrange(num_hosts):
-        vmhost = VMhost("host%02d" % (i+1), 'x86_64', 4096)
+        vmhost = VMhost("host%02d" % (i+1), 'x86_64', 4096, 280)
         stateA.init_vmhost(vmhost.name)
 
     randomly_populate_hosts(stateA, max_vms)
