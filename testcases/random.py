@@ -15,7 +15,7 @@ def randomly_populate_hosts(state):
     for vmhost in state.vmhosts():
         free_ram = vmhost.ram - vmhost.dom0_ram
         while True:
-            vm_ram = random.randint(0, vmhost.ram)
+            vm_ram = random.randint(128, vmhost.ram)
             if vm_ram > free_ram:
                 break
             vm = VM("vm%02d" % (i+1), 'x86_64', vm_ram)
