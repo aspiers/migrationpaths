@@ -31,11 +31,13 @@ class TestPathDiscovery(unittest.TestCase):
         path_finder = STRATEGY(sA, sB)
         path = path_finder.find_path()
 
-        if path is None and expected_path is None:
-            assertTrue(True, "%s found no path as expected" % test.__name__)
+        if path is None:
+            if expected_path is None:
+                self.assertTrue(True, "found no path as expected")
+            else:
+                self.fail("failed to find path\n%s" % path_finder.get_debug())
         elif path == expected_path:
-            self.assertTrue(True, "%s found expected path, cost %d" % \
-                (test.__name__, path.cost))
+            self.assertTrue(True, "found expected path, cost %d" % path.cost)
         else:
             self.assertMultiLineEqual(path.dump(), expected_path,
                                       path_finder.get_debug())
