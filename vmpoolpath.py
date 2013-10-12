@@ -155,6 +155,19 @@ class VMPoolPath:
                                     highlights['migrate'].items())
         return highlights
 
+    def show_challenge(self, host_width, meter_width):
+        highlights = self.get_highlights()
+
+        print "The challenge!\n"
+        print "From:\n"
+        print self.initial_state.ascii_meters(
+            host_width, meter_width,
+            highlight_vms = highlights['before'])
+        print "to:\n"
+        print self.final_state.ascii_meters(
+            host_width, meter_width,
+            highlight_vms = highlights['after'])
+
     def animate(self, clear_screen):
         if clear_screen:
             os.system("clear")
@@ -164,15 +177,7 @@ class VMPoolPath:
 
         highlights = self.get_highlights()
 
-        print "\n"
-        print "From:\n"
-        print self.initial_state.ascii_meters(
-            host_width, meter_width,
-            highlight_vms = highlights['before'])
-        print "to:\n"
-        print self.final_state.ascii_meters(
-            host_width, meter_width,
-            highlight_vms = highlights['after'])
+        self.show_challenge(host_width, meter_width)
 
         print self.summary()
 
