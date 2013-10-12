@@ -58,10 +58,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             return []
 
         final_state = self.path.state_pre_final_provisions
-        self.debug(2, "Looking for path from:")
-        self.debug(2, current_state.ascii_meters(10, 80, indent='  '))
-        self.debug(2, "to:")
-        self.debug(2, final_state.ascii_meters(10, 80, indent='  '))
+        self.debug(2, self.path.challenge_visualization(10, 80))
 
         path = []
         while len(vms_to_migrate) > 0:

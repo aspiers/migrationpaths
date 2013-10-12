@@ -26,6 +26,6 @@ while True:
     if path:
         print path.summary()
     else:
-        path_finder.show_challenge(10, 80)
+        print path_finder.challenge_visualization(10, 80)
         print "\nNo path found to animate!"
         sys.exit(1)
