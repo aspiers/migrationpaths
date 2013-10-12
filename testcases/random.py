@@ -26,6 +26,9 @@ def randomly_populate_hosts(state, max_vms=None):
                 return
 
 def randomly_shuffle(state, n=100):
+    if len(state.vms()) == 0:
+        return state # avoid error from shuffling empty list
+
     vm_names = state.vm_names()
     vmhost_names = state.vmhost_names()
     for i in xrange(n):
