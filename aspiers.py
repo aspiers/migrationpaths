@@ -61,10 +61,15 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(2, self.path.challenge_visualization(10, 80))
 
         path = []
+        count = 0
         while len(vms_to_migrate) > 0:
+            count += 1
+            if count > 10:
+                print self.get_debug()
+                raise RuntimeError("hit infinite loop")
             self.debug(2, "-" * 60)
-            self.debug(2, "vms_to_migrate: %s" % \
-                           ", ".join(sorted(vms_to_migrate.keys())))
+            self.debug(2, "#%i - vms_to_migrate: %s" % \
+                           (count, ", ".join(sorted(vms_to_migrate.keys()))))
             found_new_segment = False
             for vm_name in sorted(vms_to_migrate.keys()):
                 self.debug(2, "." * 60)
