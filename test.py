@@ -7,7 +7,7 @@ import textwrap
 from vm import VM
 from vmhost import VMhost
 from vmpoolstate import VMPoolState
-import testcases
+import testcases.fixed
 from dijkstra import VMPoolShortestPathFinder
 from aspiers import VMPoolAdamPathFinder
 
@@ -40,13 +40,13 @@ class TestPathDiscovery(unittest.TestCase):
             self.assertMultiLineEqual(path.dump(), expected_path,
                                       path_finder.get_debug())
 
-for attr in dir(testcases):
+for attr in dir(testcases.fixed):
     m = re.match('^case_(.+)', attr)
     if not m:
         continue
     case_name = m.group(1)
     test_name = 'test_' + case_name
-    method = getattr(testcases, attr)
+    method = getattr(testcases.fixed, attr)
     def test_runner(self, method2=method):
         return self.run_test(*method2())
     setattr(TestPathDiscovery, test_name, test_runner)
