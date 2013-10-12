@@ -2,6 +2,7 @@
 
 import unittest
 import sys
+import traceback
 
 import testcases
 from vmpoolstate import VMPoolState
@@ -19,7 +20,12 @@ else:
     stateB = VMPoolState().init_by_vmhosts(stateB)
 
 path_finder = STRATEGY(stateA, stateB)
-path = path_finder.find_path()
+try:
+    path = path_finder.find_path()
+except RuntimeError, exc:
+    print path_finder.get_debug()
+    traceback.print_exc(exc)
+    sys.exit(1)
 
 if path:
     path.animate(True)
