@@ -75,8 +75,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 vms_to_migrate = new_vms_to_migrate
                 current_state = new_state
             else:
-                raise RuntimeError("oh dear, couldn't figure out "
-                                   "how to solve to %s" % migration)
+                return None
 
         return path
 
