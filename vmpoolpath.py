@@ -17,11 +17,17 @@ class VMPoolPath:
         self.path = [ ]
         self.cost = 0
 
+    def set_vms_to_shutdown(self, vms_to_shutdown):
+        self.vms_to_shutdown = vms_to_shutdown
+
     def set_post_shutdown_state(self, state):
         self.post_shutdown_state = state
 
     def set_pre_provision_state(self, state):
         self.pre_provision_state = state
+
+    def set_vms_to_provision(self, vms_to_provision):
+        self.vms_to_provision = vms_to_provision
 
     def set_migration_sequence(self, seq):
         self.migration_sequence = seq

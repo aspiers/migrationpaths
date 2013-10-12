@@ -56,8 +56,10 @@ class VMPoolPathFinder:
         self.path = VMPoolPath(self.initial_state, self.final_state)
         self.state_post_initial_shutdowns = self.do_initial_shutdowns()
         self.state_pre_final_provisions   = self.reverse_final_provisions()
+        self.path.set_vms_to_shutdown(self.vms_to_shutdown)
         self.path.set_post_shutdown_state(self.state_post_initial_shutdowns)
         self.path.set_pre_provision_state(self.state_pre_final_provisions)
+        self.path.set_vms_to_provision(self.vms_to_provision)
 
         migrations = self.run()
         if migrations is None:
