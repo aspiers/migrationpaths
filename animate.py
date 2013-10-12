@@ -10,11 +10,14 @@ from aspiers import VMPoolAdamPathFinder
 #STRATEGY = VMPoolShortestPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
-stateA, stateB, expected_path = testcases.case_chain6()
-sA = VMPoolState().init_by_vmhosts(stateA)
-sB = VMPoolState().init_by_vmhosts(stateB)
+if False:
+    stateA, stateB, expected_path = testcases.random.identical_hosts()
+else:
+    stateA, stateB, expected_path = testcases.fixed.case_chain6()
+    stateA = VMPoolState().init_by_vmhosts(stateA)
+    stateB = VMPoolState().init_by_vmhosts(stateB)
 
-path_finder = STRATEGY(sA, sB)
+path_finder = STRATEGY(stateA, stateB)
 path = path_finder.find_path()
 
 if path:

@@ -1,1 +1,2 @@
-__all__ = [ 'fixed' ]
+import fixed
+import random
