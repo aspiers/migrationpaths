@@ -2,6 +2,7 @@
 
 import unittest
 import sys
+import random
 import time
 import traceback
 
@@ -13,7 +14,10 @@ from aspiers import VMPoolAdamPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
 while True:
-    stateA, stateB, expected_path = testcases.random.identical_hosts()
+    #min_vm_ram = random.randint(128, 512)
+    max_vm_ram = random.randint(1024, 4096)
+    stateA, stateB, expected_path = \
+        testcases.random.identical_hosts(max_vm_ram=max_vm_ram)
 
     path_finder = STRATEGY(stateA, stateB)
     try:
