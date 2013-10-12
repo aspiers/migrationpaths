@@ -127,11 +127,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """
         self.debug(2, "\nsolve_to %s from:" % migration)
 
-        vm_highlights = { }
-        for vm_name in vms_to_migrate:
-            vm_highlights[vm_name] = ['yellow']
-        for vm_name in locked_vms:
-            vm_highlights[vm_name] = ['red'   ]
+        vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
         vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
 
         vmhost_highlights = { migration.to_host.name :
@@ -171,6 +167,14 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(2, "     vms_to_migrate: %s" % \
                        ", ".join(sorted(vms_to_migrate.keys())))
         return displacement_path, displaced_state, vms_to_migrate, locked_vms
+
+    def _get_vm_highlights(self, vms_to_migrate, locked_vms):
+        vm_highlights = { }
+        for vm_name in vms_to_migrate:
+            vm_highlights[vm_name] = ['yellow']
+        for vm_name in locked_vms:
+            vm_highlights[vm_name] = ['red'   ]
+        return vm_highlights
 
     def _solve_single(self, current_state, migration, vms_to_migrate):
         """Checks the given migration is sane, and returns the updated state.
