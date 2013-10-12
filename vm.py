@@ -24,3 +24,7 @@ class VM:
             return self.name == other.name
         raise RuntimeError, "tried to compare VM %s with %s (%s)" % \
             (self, other.__class__, other)
+
+    @classmethod
+    def reset(cls):
+        cls.vms = { }

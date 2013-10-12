@@ -25,3 +25,6 @@ class VMhost:
         raise RuntimeError, "tried to compare VMhost %s with %s (%s)" % \
             (self, other.__class__, other)
 
+    @classmethod
+    def reset(cls):
+        cls.vmhosts = { }
