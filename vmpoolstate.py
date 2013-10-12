@@ -194,15 +194,14 @@ class VMPoolState:
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.unique())
 
-    def path_to(self, final_state, finder_class):
-        return finder_class(self, final_state).find_path()
-
-    def show_ascii_meters(self, host_width, meter_width, indent=''):
+    def ascii_meters(self, host_width, meter_width, indent=''):
+        s = ''
         for vmhost_name in sorted(self.vmhost_names()):
             vmhost = VMhost.vmhosts[vmhost_name]
             meter = self.vmhost_ascii_meter(vmhost, meter_width)
             format_str = "%%s%%-%d.%ds %%s" % (host_width, host_width)
-            print format_str % (indent, vmhost, meter)
+            s += format_str % (indent, vmhost, meter) + "\n"
+        return s
 
     def vmhost_ascii_meter(self, vmhost, width):
         width -= 1 # allow space for trailing '|'

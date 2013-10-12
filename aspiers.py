@@ -57,15 +57,16 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         if self._solved(current_state, vms_to_migrate):
             return []
 
-        print "Looking for path from:"
-        current_state.show_ascii_meters(10, 80, indent='  ')
-        print "to:"
-        self.state_pre_final_provisions.show_ascii_meters(10, 80, indent='  ')
+        final_state = self.state_pre_final_provisions
+        self.debug(2, "Looking for path from:")
+        self.debug(2, current_state.ascii_meters(10, 80, indent='  '))
+        self.debug(2, "to:")
+        self.debug(2, final_state.ascii_meters(10, 80, indent='  '))
 
         path = []
         while len(vms_to_migrate) > 0:
-            print "-------------------------------------------------"
-            print "vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys()))
+            self.debug(2, "-------------------------------------------------")
+            self.debug(2, "vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys())))
             vm_name = sorted(vms_to_migrate.keys())[0]
             from_host = current_state.get_vm_vmhost(vm_name)
             to_host = self.target_host(vm_name)
@@ -120,35 +121,38 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         Recursively calls _displace() when necessary.
         """
-        print "\nsolve_to %s from:" % migration
-        current_state.show_ascii_meters(10, 80, indent='  ')
+        self.debug(2, "\nsolve_to %s from:" % migration)
+        self.debug(2, current_state.ascii_meters(10, 80, indent='  '))
 
-        print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
-        print "  locked_vms: %s" % ", ".join(locked_vms.keys())
+        self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
+        self.debug(2, "  locked_vms: %s" % ", ".join(locked_vms.keys()))
 
         path, new_state, new_vms_to_migrate = \
             self._solve_single(current_state, migration, vms_to_migrate)
 
         if path is not None:
-            print "  << solved without displacement;"
-            print "     vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys()))
+            self.debug(2, "  << solved without displacement;")
+            self.debug(2, "     vms_to_migrate: %s" %
+                       ", ".join(sorted(vms_to_migrate.keys())))
             return path, new_state, new_vms_to_migrate, locked_vms
 
-        print "  x can't migrate %s without first making way:" % migration.vm
-        print "    %s" % new_state
-        print "    vms_to_migrate pre displacement: %s" % \
-            ", ".join(vms_to_migrate.keys())
+        self.debug(2, "  x can't migrate %s without first making way:" \
+                       % migration.vm)
+        self.debug(2, "    %s" % new_state)
+        self.debug(2, "    vms_to_migrate pre displacement: %s" % \
+                       ", ".join(vms_to_migrate.keys()))
         displacement_path, displaced_state, vms_to_migrate, locked_vms = \
             self._displace(current_state, migration,
                            vms_to_migrate, locked_vms)
         if displacement_path is None:
-            print "<< Couldn't make way for %s at %s\n" % \
-                (migration.vm.name, current_state)
+            self.debug(2, "<< Couldn't make way for %s at %s\n" % \
+                           (migration.vm.name, current_state))
             return None, None, None, None
 
-        print "  _solve_to returning: [%s]\n" % \
-            ", ".join([ str(m) for m in displacement_path ])
-        print "     vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys()))
+        self.debug(2, "  _solve_to returning: [%s]\n" % \
+                       ", ".join([ str(m) for m in displacement_path ]))
+        self.debug(2, "     vms_to_migrate: %s" % \
+                       ", ".join(sorted(vms_to_migrate.keys())))
         return displacement_path, displaced_state, vms_to_migrate, locked_vms
 
     def _solve_single(self, current_state, migration, vms_to_migrate):
@@ -164,19 +168,20 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         vms_to_migrate
             an updated version of vms_to_migrate, or None
         """
-        print "\nsolve_single %s" % migration
+        self.debug(2, "\nsolve_single %s" % migration)
 
         try:
             new_state = \
                 current_state.check_migration_sane(migration.vm.name,
                                                    migration.to_host)
         except VMPoolStateSanityError, exc:
-            print "  << migration not currently possible"
+            self.debug(2, "  << migration not currently possible")
             return None, exc, None
 
-        print "  << migration sane; new segment: %s" % migration
+        self.debug(2, "  << migration sane; new segment: %s" % migration)
         vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate, migration)
-        print "     vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys()))
+        self.debug(2, "     vms_to_migrate: %s" % \
+                       ", ".join(sorted(vms_to_migrate.keys())))
         return [ migration ], new_state, vms_to_migrate
 
     def _update_vms_to_migrate(self, vms_to_migrate, migration):
@@ -225,15 +230,16 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         Recursively calls _displace() / _solve_single() as necessary.
         """
         usurper_name = on_behalf_of.vm.name
-        print "\ndisplace from %s for %s" % (on_behalf_of.to_host, usurper_name)
-        print "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys())
+        self.debug(2, "\ndisplace from %s for %s" % \
+                       (on_behalf_of.to_host, usurper_name))
+        self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
 
         # Ensure displacement can't touch the VM we're displacing on behalf of,
         # otherwise when we've successfully displaced, we might not be able to
         # perform the migration we originally wanted to do.
         locked_for_displacement = copy.copy(locked_vms)
         locked_for_displacement[usurper_name] = True
-        print "  + locked %s" % usurper_name
+        self.debug(2, "  + locked %s" % usurper_name)
 
         candidates = \
             self._find_displacement_candidates(current_state, vms_to_migrate,
@@ -260,8 +266,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
             if partial_displacements is None:
                 continue
-            print "  + path to unvalidated displacement: %s" % \
-                partial_displacements
+            self.debug(2, "  + path to unvalidated displacement: %s" % \
+                           partial_displacements)
 
             remaining_displacements, fully_displaced_state, \
                 fully_displaced_vms_to_migrate, displaced_locked_vms = \
@@ -274,16 +280,18 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 continue
 
             displacements = partial_displacements + remaining_displacements
-            print "  << solved displacement %d for %s via" % \
-                (self.candidate_search_count, on_behalf_of)
-            print "     [%s]" % ", ".join([ str(m) for m in displacements ])
-            print "     vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys()))
+            self.debug(2, "  << solved displacement %d for %s via" % \
+                           (self.candidate_search_count, on_behalf_of))
+            self.debug(2, "     [%s]" % \
+                           ", ".join([ str(m) for m in displacements ]))
+            self.debug(2, "     vms_to_migrate: %s" % \
+                           ", ".join(sorted(vms_to_migrate.keys())))
 
             return displacements, fully_displaced_state, \
                 fully_displaced_vms_to_migrate, displaced_locked_vms
 
-        print "  << ran out of displacement candidates! " \
-            "giving up on displacement."
+        self.debug(2, "  << ran out of displacement candidates! " \
+                       "giving up on displacement.")
         return None, None, None, None
 
     candidate_search_count = 0
@@ -311,7 +319,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         Recursively calls _displace() as necessary.
         """
-        print "\nrecurse_displacement for %s" % on_behalf_of
+        self.debug(2, "\nrecurse_displacement for %s" % on_behalf_of)
 
         try:
             displaced_state = \
@@ -326,21 +334,21 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                                      on_behalf_of)
 
         if displacement_sufficient:
-            print "  << %s achieves effective displacement" % migration
+            self.debug(2, "  << %s achieves effective displacement" % migration)
             return path, displaced_state, vms_to_migrate, locked_vms
         else:
-            print "  + %s doesn't achieve effective displacement" % \
-                migration
+            self.debug(2, "  + %s doesn't achieve effective displacement" % \
+                           migration)
             # keep on displacing
             rest_path, displaced_state, displaced_vms_to_migrate, locked_vms = \
                 self._displace(displaced_state, migration,
                                displaced_vms_to_migrate, locked_vms)
             if rest_path is None:
-                print "  << couldn't displace enough; give up on this line"
+                self.debug(2, "  << couldn't displace enough; give up on this line")
                 return None, None, None, None
 
-            print "  << finished displacement:"
-            print "     [%s]" % ", ".join([ str(m) for m in displacements ])
+            self.debug(2, "  << finished displacement:")
+            self.debug(2, "     [%s]" % ", ".join([ str(m) for m in displacements ]))
             return path + rest_path, displaced_state, \
                 displaced_vms_to_migrate, locked_vms
 
@@ -368,7 +376,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         VMPoolAdamPathFinder.candidate_search_count += 1
 
         def _debug_cand(msg):
-            print "[%d] %s" % (VMPoolAdamPathFinder.candidate_search_count, msg)
+            self.debug(2, "[%d] %s" % (VMPoolAdamPathFinder.candidate_search_count, msg))
 
         # We iterate searching for case 1, and queue up any instances
         # of cases 2 and 3 we find for later, in case we need them.

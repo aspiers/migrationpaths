@@ -16,9 +16,12 @@ class VMPoolPathFinder:
     N.B. Instances should not be reused for multiple runs.
     """
 
-    def __init__(self, initial_state, final_state):
+    def __init__(self, initial_state, final_state, debug_level=2):
         self.initial_state = initial_state
         self.final_state = final_state
+
+        self._debug = ''
+        self._debug_level = debug_level
 
         self._state_cache = { }
         self.cache_state(initial_state)
@@ -134,3 +137,10 @@ class VMPoolPathFinder:
     def cache_lookup(self, state_string):
         return self._state_cache[state_string]
         #return self._state_cache.get(state_string, None)
+
+    def debug(self, level, message):
+        if level >= self._debug_level:
+            self._debug += message + "\n"
+
+    def get_debug(self):
+        return self._debug
