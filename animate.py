@@ -16,4 +16,8 @@ sB = VMPoolState().init_by_vmhosts(stateB)
 
 path_finder = STRATEGY(sA, sB)
 path = path_finder.find_path()
-path.animate(True)
+
+if path:
+    path.animate(True)
+else:
+    print "\nNo path found to animate."
