@@ -27,6 +27,14 @@ class VMPoolState:
         self.vm2vmhost = { }
         self.vmhost2vms = { }
 
+    def vms(self):
+        """Returns a list of VMs in this state."""
+        return [ VM.vms[name] for name in self.vm_names() ]
+
+    def vmhosts(self):
+        """Returns a list of VM hosts in this state."""
+        return [ VMhost.vmhosts[name] for name in self.vmhost_names() ]
+
     def vm_names(self):
         """Returns a list of names of VMs in this state."""
         return self.vm2vmhost.keys()
