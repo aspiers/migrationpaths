@@ -237,8 +237,9 @@ class VMPoolState:
                 meter += '|'
                 printable_char_count += 1
             if dom_width <= 1:
-                raise RuntimeError("dom labelled '%s' had width %d" %
-                                   (dom_name, dom_width))
+                continue
+                # raise RuntimeError("dom labelled '%s' had width %d" %
+                #                    (dom_name, dom_width))
             dom_text = "{0:^{1}.{1}}".format(dom_name, dom_width - 1)
             printable_char_count += len(dom_text)
             if dom_name in highlight_vms:
