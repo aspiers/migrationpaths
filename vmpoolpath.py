@@ -63,3 +63,22 @@ class VMPoolPath:
             provisions = [ "%s on %s" % (vm, vmhost) \
                                for vm, vmhost in self.vms_to_provision ]
             print "+ Finally provision VMs: %s" % ", ".join(provisions)
+
+    def dump(self, indent=''):
+        s = ''
+        s += "%sshutdown: %s\n" % (indent, ", ".join(sorted(self.vms_to_shutdown)))
+        for migration in self.migration_sequence:
+            s += "%s! %s: %s -> %s  cost %d\n" % \
+                (indent,
+                 migration.vm, migration.from_host,
+                 migration.to_host, migration.cost())
+        s += "%sprovision: %s\n" % (indent, ", ".join(sorted(self.vms_to_provision)))
+        return s
+
+    def __str__(self):
+        return self.dump()
+
+    def __eq__(self, other):
+        if isinstance(other, VMPoolPath):
+            return str(self) == str(other)
+        return NotImplemented
