@@ -155,6 +155,7 @@ class VMPoolPath:
         after_highlights  = dict(provision_highlights.items() +
                                  migrate_highlights.items())
 
+        print "\n"
         print "From:\n"
         print self.initial_state.ascii_meters(
             host_width, meter_width,
@@ -171,6 +172,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Shutdown phase\n"
+            print "Current state:\n"
             print self.initial_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = shutdown_highlights)
@@ -184,6 +186,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Shutdown phase\n"
+            print "Current state:\n"
             print self.state_post_initial_shutdowns.ascii_meters(
                 host_width, meter_width)
             print "Target state:\n"
@@ -197,6 +200,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Migration phase\n"
+            print "Current state:\n"
             highlight = { migration.vm.name : ('yellow', 'on_cyan') }
             print current_state.ascii_meters(
                 host_width, meter_width,
@@ -212,6 +216,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Migration phase\n"
+            print "Current state:\n"
             current_state = current_state.migrate(migration.vm.name,
                                                   migration.to_host.name)
             print current_state.ascii_meters(
@@ -228,6 +233,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Provisioning phase\n"
+            print "Current state:\n"
             print current_state.ascii_meters(
                 host_width, meter_width)
             print "Target state:\n"
@@ -240,6 +246,7 @@ class VMPoolPath:
             self.next_screen(clear_screen)
 
             print "Provisioning phase\n"
+            print "Current state:\n"
             print self.final_state.ascii_meters(
                 host_width, meter_width,
                 highlight_vms = provision_highlights)
