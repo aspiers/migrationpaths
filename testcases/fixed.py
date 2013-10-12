@@ -90,8 +90,9 @@ def case_complex_swap():
         }
     expected_path = """\
         shutdown: 
-        ! vm1@256: host1@4096 -> host2@4096  cost 256
-        ! vm2@256: host2@4096 -> host1@4096  cost 256
+        ! vm2@3000: host2@4096 -> host1@4096  cost 3000
+        ! vm3@3700: host3@4096 -> host2@4096  cost 3700
+        ! vm2@3000: host1@4096 -> host3@4096  cost 3000
         provision: 
     """
     return (stateA, stateB, expected_path)

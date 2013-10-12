@@ -62,19 +62,27 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         path = []
         while len(vms_to_migrate) > 0:
-            self.debug(2, "-------------------------------------------------")
-            self.debug(2, "vms_to_migrate: %s" % ", ".join(sorted(vms_to_migrate.keys())))
-            vm_name = sorted(vms_to_migrate.keys())[0]
-            from_host = current_state.get_vm_vmhost(vm_name)
-            to_host = self.target_host(vm_name)
-            migration = VMmigration(vm_name, from_host, to_host)
-            path_segment, new_state, new_vms_to_migrate, locked_vms = \
-                self._solve_to(current_state, migration, vms_to_migrate, {})
-            if path_segment:
-                path += path_segment
-                vms_to_migrate = new_vms_to_migrate
-                current_state = new_state
-            else:
+            self.debug(2, "-" * 60)
+            self.debug(2, "vms_to_migrate: %s" % \
+                           ", ".join(sorted(vms_to_migrate.keys())))
+            found_new_segment = False
+            for vm_name in sorted(vms_to_migrate.keys()):
+                self.debug(2, "." * 60)
+                from_host = current_state.get_vm_vmhost(vm_name)
+                to_host = self.target_host(vm_name)
+                migration = VMmigration(vm_name, from_host, to_host)
+                self.debug(2, "root migration: %s" % migration)
+                path_segment, new_state, new_vms_to_migrate, locked_vms = \
+                    self._solve_to(current_state, migration, vms_to_migrate, {})
+                if path_segment:
+                    found_new_segment = True
+                    path += path_segment
+                    vms_to_migrate = new_vms_to_migrate
+                    current_state = new_state
+                    break
+            if not found_new_segment:
+                # We exhausted all avenues without making any
+                # progress, so give up.
                 return None
 
         return path
