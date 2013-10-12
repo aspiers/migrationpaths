@@ -4,78 +4,78 @@ from vm import VM
 from vmhost import VMhost
 
 def case_simple_swap():
-    demo1 = VMhost('demo1', 'x86_64', 4096)
-    demo2 = VMhost('demo2', 'x86_64', 4096)
+    host1 = VMhost('host1', 'x86_64', 4096)
+    host2 = VMhost('host2', 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 256)
     vm2 = VM('vm2', 'x86_64', 256)
     stateA = {
-        'demo1' : [ vm1 ],
-        'demo2' : [ vm2 ],
+        'host1' : [ vm1 ],
+        'host2' : [ vm2 ],
         }
     stateB = {
-        'demo1' : [ vm2 ],
-        'demo2' : [ vm1 ],
+        'host1' : [ vm2 ],
+        'host2' : [ vm1 ],
         }
     expected_path = """\
         shutdown: 
-        ! vm1@256: demo1@4096 -> demo2@4096  cost 256
-        ! vm2@256: demo2@4096 -> demo1@4096  cost 256
+        ! vm1@256: host1@4096 -> host2@4096  cost 256
+        ! vm2@256: host2@4096 -> host1@4096  cost 256
         provision: 
     """
     return (stateA, stateB, expected_path)
 
 def case_simple_cessation():
-    demo1 = VMhost('demo1', 'x86_64', 4096)
-    demo2 = VMhost('demo2', 'x86_64', 4096)
-    demo3 = VMhost('demo3', 'x86_64', 4096)
+    host1 = VMhost('host1', 'x86_64', 4096)
+    host2 = VMhost('host2', 'x86_64', 4096)
+    host3 = VMhost('host3', 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 3256)
     vm2 = VM('vm2', 'x86_64', 3256)
     stateA = {
-        'demo1' : [ vm1 ],
-        'demo2' : [ vm2 ],
+        'host1' : [ vm1 ],
+        'host2' : [ vm2 ],
         }
     stateB = {
-        'demo1' : [ vm2 ],
-        'demo3' : [ vm1 ],
+        'host1' : [ vm2 ],
+        'host3' : [ vm1 ],
         }
     expected_path = """\
         shutdown: 
-        ! vm1@3256: demo1@4096 -> demo3@4096  cost 3256
-        ! vm2@3256: demo2@4096 -> demo1@4096  cost 3256
+        ! vm1@3256: host1@4096 -> host3@4096  cost 3256
+        ! vm2@3256: host2@4096 -> host1@4096  cost 3256
         provision: 
     """
     return (stateA, stateB, expected_path)
 
 def case_swap_with_one_temp():
-    demo1 = VMhost('demo1', 'x86_64', 4096)
-    demo2 = VMhost('demo2', 'x86_64', 4096)
-    demo3 = VMhost('demo3', 'x86_64', 4096)
+    host1 = VMhost('host1', 'x86_64', 4096)
+    host2 = VMhost('host2', 'x86_64', 4096)
+    host3 = VMhost('host3', 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 3256)
     vm2 = VM('vm2', 'x86_64', 3256)
     stateA = {
-        'demo1' : [ vm1 ],
-        'demo2' : [ vm2 ],
-        'demo3' : [ ],
+        'host1' : [ vm1 ],
+        'host2' : [ vm2 ],
+        'host3' : [ ],
         }
     stateB = {
-        'demo1' : [ vm2 ],
-        'demo2' : [ vm1 ],
-        'demo3' : [ ],
+        'host1' : [ vm2 ],
+        'host2' : [ vm1 ],
+        'host3' : [ ],
         }
     expected_path = """\
         shutdown: 
-        ! vm2@3256: demo2@4096 -> demo3@4096  cost 3256
-        ! vm1@3256: demo1@4096 -> demo2@4096  cost 3256
-        ! vm2@3256: demo3@4096 -> demo1@4096  cost 3256
+        ! vm2@3256: host2@4096 -> host3@4096  cost 3256
+        ! vm1@3256: host1@4096 -> host2@4096  cost 3256
+        ! vm2@3256: host3@4096 -> host1@4096  cost 3256
         provision: 
     """
     return (stateA, stateB, expected_path)
 
 def case_shutdown_and_swap():
-    demo1 = VMhost('demo1', 'x86_64', 4096)
-    demo2 = VMhost('demo2', 'x86_64', 3048)
-    demo3 = VMhost('demo3', 'i386'  , 4096)
-    demo4 = VMhost('demo4', 'i386'  , 2448)
+    host1 = VMhost('host1', 'x86_64', 4096)
+    host2 = VMhost('host2', 'x86_64', 3048)
+    host3 = VMhost('host3', 'i386'  , 4096)
+    host4 = VMhost('host4', 'i386'  , 2448)
 
     vm1 = VM('vm1', 'x86_64', 2048)
     vm2 = VM('vm2', 'x86_64', 1024)
@@ -88,23 +88,23 @@ def case_shutdown_and_swap():
     vm9 = VM('vm9', 'i386',    256)
 
     stateA = {
-        'demo1' : [ vm1, vm2 ],
-        'demo2' : [ vm3, vm4, vm9 ],
-        'demo3' : [ vm7, vm8 ],
-        'demo4' : [ vm5, vm6 ]
+        'host1' : [ vm1, vm2 ],
+        'host2' : [ vm3, vm4, vm9 ],
+        'host3' : [ vm7, vm8 ],
+        'host4' : [ vm5, vm6 ]
         }
     # swap vm5 and vm9
     stateB = {
-        'demo1' : [ vm1 ],
-        'demo2' : [ vm3, vm4, vm5 ],
-        'demo3' : [ ],
-        'demo4' : [ vm9 ]
+        'host1' : [ vm1 ],
+        'host2' : [ vm3, vm4, vm5 ],
+        'host3' : [ ],
+        'host4' : [ vm9 ]
         }
 
     expected_path = """\
         shutdown: vm2, vm6, vm7, vm8
-        ! vm9@256: demo2@3048 -> demo4@2448  cost 256
-        ! vm5@1024: demo4@2448 -> demo2@3048  cost 1024
+        ! vm9@256: host2@3048 -> host4@2448  cost 256
+        ! vm5@1024: host4@2448 -> host2@3048  cost 1024
         provision: 
     """
     return (stateA, stateB, expected_path)
