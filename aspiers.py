@@ -182,7 +182,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     def _update_vms_to_migrate(self, vms_to_migrate, migration):
         vms_to_migrate = copy.copy(vms_to_migrate)
         vm_name = migration.vm.name
-        if migration.to_host == VMhost.vmhosts[self.target_host(vm_name)]:
+        target_host = self.target_host(vm_name)
+        if migration.to_host == VMhost.vmhosts[target_host.name]:
             # We're migrating the VM to its final destination -
             # ensure it's not on the todo list any more.
             if vm_name in vms_to_migrate:
@@ -430,4 +431,5 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         _debug_cand("no more displacement candidates")
 
     def target_host(self, vm_name):
-        return self.state_pre_final_provisions.get_vm_vmhost(vm_name)
+        target_host_name = self.state_pre_final_provisions.get_vm_vmhost(vm_name)
+        return VMhost.vmhosts[target_host_name]
