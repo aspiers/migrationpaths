@@ -23,8 +23,6 @@ class VMPoolState:
         'x86_64' : { 'i386' : 1, 'x86_64' : 1 },
         }
 
-    dom0_RAM_required = 256
-
     def __init__(self):
         self.vm2vmhost = { }
         self.vmhost2vms = { }
@@ -146,18 +144,15 @@ class VMPoolState:
         """Raises a VMPoolStateSanityError exception if given VM host is
         capable of hosting VMs allocated to it in this state object.
         """
+        vmhost = VMhost.vmhosts[vmhost_name]
         guest_RAM_required = self.total_guest_RAM(vmhost_name)
-        vmhost_RAM_required = guest_RAM_required \
-                            + VMPoolState.dom0_RAM_required
-        vmhost_RAM_available = VMhost.vmhosts[vmhost_name].ram
-        if vmhost_RAM_required > vmhost_RAM_available:
+        vmhost_RAM_required = guest_RAM_required + vmhost.dom0_ram
+        if vmhost_RAM_required > vmhost.ram:
             raise VMPoolStateRAMError, \
                   "vmhost %s requires %d for guests + %d for dom0 == %d > %d" \
                   % (vmhost_name,
-                     guest_RAM_required,
-                     VMPoolState.dom0_RAM_required,
-                     vmhost_RAM_required,
-                     vmhost_RAM_available)
+                     guest_RAM_required, vmhost.dom0_ram,
+                     vmhost_RAM_required, vmhost.ram)
         self.check_vms_sane(vmhost_name)
 
     def check_vms_sane(self, vmhost_name):
@@ -213,7 +208,7 @@ class VMPoolState:
         vm_names.sort()
         vms = [ VM.vms[vm_name] for vm_name in vm_names ]
         ram_used = 0
-        doms  = [ ('dom0', VMPoolState.dom0_RAM_required) ]
+        doms  = [ ('dom0', vmhost.dom0_ram) ]
         doms += [ (vm.name, vm.ram) for vm in vms ]
         ram_used = reduce(lambda acc, dom: acc + dom[1], doms, 0)
         spare_ram = vmhost.ram - ram_used

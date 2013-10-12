@@ -3,11 +3,12 @@
 class VMhost:
     vmhosts = { }
 
-    def __init__(self, name, arch, ram):
+    def __init__(self, name, arch, ram, dom0_ram=256):
         assert type(name) is str
         self.name = name
         self.arch = arch
         self.ram = ram
+        self.dom0_ram = dom0_ram
         if name in VMhost.vmhosts:
             raise RuntimeError, "vmhost %s already initialised" % name
         VMhost.vmhosts[name] = self
