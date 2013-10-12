@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import os
+
 from vm import VM
 from vmhost import VMhost
 
@@ -121,3 +123,107 @@ class VMPoolPath:
         if isinstance(other, VMPoolPath):
             return str(self) == str(other)
         return NotImplemented
+
+    def next_screen(self, clear_screen):
+        raw_input("\nPress Enter to continue > ")
+        if clear_screen:
+            os.system("clear")
+        else:
+            print "\n----------------------------------------------------\n"
+
+    def animate(self, clear_screen):
+        if clear_screen:
+            os.system("clear")
+
+        host_width = 10
+        meter_width = 80
+
+        shutdown_highlights = {
+            vm: ('white', 'on_red', ['bold']) \
+                for vm in self.vms_to_shutdown
+        }
+        migrate_highlights = {
+            vm: tuple(['yellow']) \
+                for vm in self.vms_to_migrate
+        }
+        provision_highlights = {
+            vm: ('white', 'on_green', ['bold']) \
+                for vm in self.vms_to_provision
+        }
+        before_highlights = dict(shutdown_highlights.items() +
+                                 migrate_highlights.items())
+        after_highlights  = dict(provision_highlights.items() +
+                                 migrate_highlights.items())
+
+        print "From:\n"
+        print self.initial_state.ascii_meters(
+            host_width, meter_width,
+            highlight_vms = before_highlights)
+        print "to:\n"
+        print self.final_state.ascii_meters(
+            host_width, meter_width,
+            highlight_vms = after_highlights)
+
+        print "Path found with %d migrations and cost %d" % \
+            (len(self.migration_sequence), self.cost)
+
+        if self.vms_to_shutdown:
+            self.next_screen(clear_screen)
+
+            print "Shutdown phase\n"
+            print self.initial_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = shutdown_highlights)
+            print "First shut down VMs: %s" % \
+                ", ".join(sorted(self.vms_to_shutdown))
+
+            self.next_screen(clear_screen)
+
+            print "Shutdown phase\n"
+            print self.state_post_initial_shutdowns.ascii_meters(
+                host_width, meter_width)
+            print "Shutdown complete."
+
+        current_state = self.state_post_initial_shutdowns
+        for migration in self.migration_sequence:
+            self.next_screen(clear_screen)
+
+            print "Migration phase\n"
+            highlight = { migration.vm.name : ('yellow', 'on_cyan') }
+            print current_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = highlight)
+            print "%s: %s -> %s  cost %d" % \
+                (migration.vm.name, migration.from_host.name,
+                 migration.to_host.name, migration.cost())
+
+            self.next_screen(clear_screen)
+
+            print "Migration phase\n"
+            current_state = current_state.migrate(migration.vm.name,
+                                                  migration.to_host.name)
+            print current_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = highlight)
+            print "Migration of %s to %s complete." % \
+                (migration.vm.name, migration.to_host.name)
+
+        if self.vms_to_provision:
+            self.next_screen(clear_screen)
+
+            print "Provisioning phase\n"
+            print current_state.ascii_meters(
+                host_width, meter_width)
+            print "Finally provision VMs: %s" % \
+                ", ".join(sorted(self.vms_to_provision))
+
+            self.next_screen(clear_screen)
+
+            print "Provisioning phase\n"
+            print self.final_state.ascii_meters(
+                host_width, meter_width,
+                highlight_vms = provision_highlights)
+            print "Provisioning complete.\n"
+
+        print "Path found with %d migrations and cost %d" % \
+            (len(self.migration_sequence), self.cost)
