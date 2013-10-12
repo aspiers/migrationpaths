@@ -39,7 +39,7 @@ def randomly_shuffle(state, n=100):
             vmhost = VMhost.vmhosts[vmhost_name]
             try:
                 state = state.check_migration_sane(vm_to_shuffle, vmhost)
-                #print "  shuffled to %s" % vmhost_name
+                #print "shuffled %s to %s" % (vm_to_shuffle, vmhost_name)
                 break
             except VMPoolStateSanityError, exc:
                 #print "  couldn't shuffle to %s" % vmhost_name
