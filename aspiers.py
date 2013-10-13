@@ -97,10 +97,12 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             if len(vms_to_migrate) == 0:
                 return True
             else:
+                print self.get_debug()
                 raise RuntimeError(
                     "Reached final state and "
                     "still had vms to move: %s" % vms_to_migrate)
         elif len(vms_to_migrate) == 0:
+            print self.get_debug()
             raise RuntimeError("No vms left to move "
                                "and not yet at final state")
         else:
