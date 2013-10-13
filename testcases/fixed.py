@@ -328,3 +328,28 @@ def case_simple_deadlock():
     expected_path = None
     return (stateA, stateB, expected_path)
 
+def case_weird():
+    testcases.utils.create_vmhosts(3, 'x86_64', 4096, 300)
+    vm1 = VM('vm1', 'x86_64',  892)
+    vm2 = VM('vm2', 'x86_64', 2542)
+    vm3 = VM('vm3', 'x86_64', 3039)
+    vm4 = VM('vm4', 'x86_64',  437)
+    stateA = {
+        'host1' : [ ],
+        'host2' : [ vm3, vm4 ],
+        'host3' : [ vm1, vm2 ],
+        }
+    stateB = {
+        'host1' : [ vm2 ],
+        'host2' : [ vm1, vm4 ],
+        'host3' : [ vm3 ],
+        }
+    expected_path = """\
+        shutdown: 
+        ! vm2: host3 -> host1  cost 2542
+        ! vm1: host3 -> host1  cost 892
+        ! vm3: host2 -> host3  cost 3039
+        ! vm1: host1 -> host2  cost 892
+        provision: 
+    """
+    return (stateA, stateB, expected_path)
