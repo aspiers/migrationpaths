@@ -23,9 +23,6 @@ class VMPoolPathFinder:
         self._debug = ''
         self._debug_level = debug_level
 
-        self._state_cache = { }
-        self.cache_state(initial_state)
-        self.cache_state(final_state)
 
         # Did we find a path yet?
         self.found = False
@@ -67,26 +64,6 @@ class VMPoolPathFinder:
         self.path.set_cost(cost)
 
         return self.path
-
-    # Cache objects by unique string.  This allows us to key
-    # todo/done/distances/previous by unique string but still be able
-    # to retrieve the corresponding object.  This is necessary because
-    # multiple pool state objects can potentially represent the same
-    # state.
-    #
-    # Note that this relies on the VMPoolState instances remaining
-    # unchanged after caching.  This should be thread-safe since the
-    # cache is per path finder run (per instance), within which state
-    # instances are constructed during neighbour exploration and not
-    # subsequently altered.
-
-    def cache_state(self, state):
-        if state.unique() not in self._state_cache:
-            self._state_cache[state.unique()] = state
-
-    def cache_lookup(self, state_string):
-        return self._state_cache[state_string]
-        #return self._state_cache.get(state_string, None)
 
     def debug(self, level, message):
         if level >= self._debug_level:
