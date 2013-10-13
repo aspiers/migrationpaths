@@ -323,3 +323,20 @@ def case_chain6():
         provision: tiny5
     """
     return (stateA, stateB, expected_path)
+
+def case_simple_deadlock():
+    host1 = VMhost('host1', 'x86_64', 4096)
+    host2 = VMhost('host2', 'x86_64', 4096)
+    vm1 = VM('vm1', 'x86_64', 3256)
+    vm2 = VM('vm2', 'x86_64', 3256)
+    stateA = {
+        'host1' : [ vm1 ],
+        'host2' : [ vm2 ],
+        }
+    stateB = {
+        'host1' : [ vm2 ],
+        'host2' : [ vm1 ],
+        }
+    expected_path = None
+    return (stateA, stateB, expected_path)
+
