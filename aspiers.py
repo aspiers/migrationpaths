@@ -60,37 +60,19 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         final_state = self.path.state_pre_final_provisions
 
-        path = []
-        count = 0
-        while len(vms_to_migrate) > 0:
-            count += 1
-            if count > 10:
-                print self.get_debug()
-                raise RuntimeError("hit infinite loop")
-            self.debug(2, "-" * 60)
-            self.debug(2, "#%i - vms_to_migrate: %s" % \
-                           (count, ", ".join(sorted(vms_to_migrate.keys()))))
-            found_new_segment = False
-            for vm_name in sorted(vms_to_migrate.keys()):
-                self.debug(2, "." * 60)
-                from_host = current_state.get_vm_vmhost(vm_name)
-                to_host = self.target_host(vm_name)
-                migration = VMmigration(vm_name, from_host, to_host)
-                self.debug(2, "root migration: %s" % migration)
-                path_segment, new_state, new_vms_to_migrate, locked_vms = \
-                    self._solve_to(current_state, migration, vms_to_migrate, {})
-                if path_segment:
-                    found_new_segment = True
-                    path += path_segment
-                    vms_to_migrate = new_vms_to_migrate
-                    current_state = new_state
-                    break
-            if not found_new_segment:
-                # We exhausted all avenues without making any
-                # progress, so give up.
-                return None
+        for vm_name in sorted(vms_to_migrate.keys()):
+            from_host = current_state.get_vm_vmhost(vm_name)
+            to_host = self.target_host(vm_name)
+            migration = VMmigration(vm_name, from_host, to_host)
+            self.debug(2, "\nsolve: %s" % migration)
+            path_segment, new_state, new_vms_to_migrate, locked_vms = \
+                self._solve_to(current_state, migration, vms_to_migrate, {})
+            if path_segment:
+                path_remainder = self._solve(new_state, new_vms_to_migrate)
+                if path_remainder is not None:
+                    return path_segment + path_remainder
 
-        return path
+        return None
 
     def _solved(self, current_state, vms_to_migrate):
         if current_state == self.path.state_pre_final_provisions:
