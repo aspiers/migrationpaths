@@ -13,6 +13,13 @@ from aspiers import VMPoolAdamPathFinder
 
 STRATEGY = VMPoolAdamPathFinder
 
+clear = True
+sleep = 0.2
+if len(sys.argv) >= 2:
+    sleep = float(sys.argv[1])
+if len(sys.argv) >= 3:
+    clear = False if sys.argv[2] == 'false' else True
+
 while True:
     #min_vm_ram = random.randint(128, 512)
     max_vm_ram = random.randint(1024, 4096)
@@ -26,7 +33,7 @@ while True:
         continue # nothing to see here, move along
 
     if path:
-        path.animate(True, 0.2)
+        path.animate(clear, sleep)
     else:
         print path_finder.challenge_visualization(10, 80)
         print "\nNo path found to animate!"
