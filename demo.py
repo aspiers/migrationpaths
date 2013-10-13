@@ -42,6 +42,6 @@ while True:
     if path:
         path.animate(clear, sleep, start_sleep, end_sleep)
     else:
-        print path_finder.challenge_visualization(10, 80)
+        print path_finder.path.challenge_visualization(10, 80)
         print "\nNo path found to animate!"
         time.sleep(10)
