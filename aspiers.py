@@ -363,7 +363,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 return None, None, None, None
 
             self.debug(2, "  << finished displacement:")
-            self.debug(2, "     [%s]" % ", ".join([ str(m) for m in displacements ]))
+            self.debug(2, "     [%s]" % \
+                           ", ".join([ str(m) for m in displacements ]))
             return path + rest_path, current_state, \
                 displaced_vms_to_migrate, locked_vms
 
@@ -391,7 +392,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         VMPoolAdamPathFinder.candidate_search_count += 1
 
         def _debug_cand(msg):
-            self.debug(2, "[%d] %s" % (VMPoolAdamPathFinder.candidate_search_count, msg))
+            self.debug(2, "[%d] %s" % \
+                           (VMPoolAdamPathFinder.candidate_search_count, msg))
 
         # We iterate searching for case 1, and queue up any instances
         # of cases 2 and 3 we find for later, in case we need them.
@@ -414,7 +416,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                        on_behalf_of)
                 _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
-                _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host.name))
+                _debug_cand("1  + saved case 2: %s ! %s" %
+                            (vm_name, to_host.name))
                 # We need to perform this migration anyway, so it
                 # shouldn't cost us too dearly to recursively displace
                 # if necessary in order to make it possible.
@@ -454,5 +457,6 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         _debug_cand("no more displacement candidates")
 
     def target_host(self, vm_name):
-        target_host_name = self.path.state_pre_final_provisions.get_vm_vmhost(vm_name)
+        target_host_name = \
+            self.path.state_pre_final_provisions.get_vm_vmhost(vm_name)
         return VMhost.vmhosts[target_host_name]
