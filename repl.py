@@ -14,7 +14,7 @@ from aspiers import VMPoolAdamPathFinder
 #STRATEGY = VMPoolShortestPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
-stateA, stateB, expected_path = testcases.fixed.case_weird()
+stateA, stateB, expected_path = testcases.fixed.case_max_recursion_depth()
 stateA = VMPoolState().init_by_vmhosts(stateA)
 stateB = VMPoolState().init_by_vmhosts(stateB)
 

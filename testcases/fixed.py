@@ -354,3 +354,30 @@ def case_weird():
         provision: 
     """
     return (stateA, stateB, expected_path)
+
+def case_max_recursion_depth():
+    testcases.utils.create_vmhosts(3, 'x86_64', 4096, 280)
+    vm1 = VM('vm1', 'x86_64', 1280)
+    vm2 = VM('vm2', 'x86_64',  593)
+    vm3 = VM('vm3', 'x86_64', 1479)
+    vm4 = VM('vm4', 'x86_64', 2332)
+    vm5 = VM('vm5', 'x86_64', 2799)
+    stateA = {
+        'host1' : [ vm5 ],
+        'host2' : [ vm4 ],
+        'host3' : [ vm1, vm2, vm3 ],
+        }
+    stateB = {
+        'host1' : [ vm5 ],
+        'host2' : [ vm1, vm2 ],
+        'host3' : [ vm3, vm4 ],
+        }
+    expected_path = """\
+        shutdown: 
+        ! vm2: host3 -> host1  cost 2542
+        ! vm1: host3 -> host1  cost 892
+        ! vm3: host2 -> host3  cost 3039
+        ! vm1: host1 -> host2  cost 892
+        provision: 
+    """
+    return (stateA, stateB, expected_path)
