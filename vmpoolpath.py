@@ -109,8 +109,8 @@ class VMPoolPath:
         for migration in self.migration_sequence:
             s += "%s! %s: %s -> %s  cost %d\n" % \
                 (indent,
-                 migration.vm, migration.from_host,
-                 migration.to_host, migration.cost())
+                 migration.vm.name, migration.from_host.name,
+                 migration.to_host.name, migration.cost())
         s += "%sprovision: %s\n" % \
             (indent, ", ".join(sorted(self.vms_to_provision)))
         return s

@@ -18,8 +18,8 @@ def case_simple_swap():
         }
     expected_path = """\
         shutdown: 
-        ! vm1^256: host1^4096 -> host2^4096  cost 256
-        ! vm2^256: host2^4096 -> host1^4096  cost 256
+        ! vm1: host1 -> host2  cost 256
+        ! vm2: host2 -> host1  cost 256
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -38,8 +38,8 @@ def case_simple_cessation():
         }
     expected_path = """\
         shutdown: 
-        ! vm1^3256: host1^4096 -> host3^4096  cost 3256
-        ! vm2^3256: host2^4096 -> host1^4096  cost 3256
+        ! vm1: host1 -> host3  cost 3256
+        ! vm2: host2 -> host1  cost 3256
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -60,9 +60,9 @@ def case_swap_with_one_temp():
         }
     expected_path = """\
         shutdown: 
-        ! vm2^3256: host2^4096 -> host3^4096  cost 3256
-        ! vm1^3256: host1^4096 -> host2^4096  cost 3256
-        ! vm2^3256: host3^4096 -> host1^4096  cost 3256
+        ! vm2: host2 -> host3  cost 3256
+        ! vm1: host1 -> host2  cost 3256
+        ! vm2: host3 -> host1  cost 3256
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -84,9 +84,9 @@ def case_complex_swap():
         }
     expected_path = """\
         shutdown: 
-        ! vm2^3000: host2^4096 -> host1^4096  cost 3000
-        ! vm3^3700: host3^4096 -> host2^4096  cost 3700
-        ! vm2^3000: host1^4096 -> host3^4096  cost 3000
+        ! vm2: host2 -> host1  cost 3000
+        ! vm3: host3 -> host2  cost 3700
+        ! vm2: host1 -> host3  cost 3000
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -107,11 +107,11 @@ def case_complex_pair_swap():
         }
     expected_path = """\
         shutdown: 
-        ! vm1^1645: host2^4096 -> host1^4096  cost 1645
-        ! vm4^222: host1^4096 -> host2^4096  cost 222
-        ! vm2^2049: host2^4096 -> host1^4096  cost 2049
-        ! vm3^459: host1^4096 -> host2^4096  cost 459
-        ! vm2^2049: host2^4096 -> host1^4096  cost 2049
+        ! vm1: host2 -> host1  cost 1645
+        ! vm4: host1 -> host2  cost 222
+        ! vm2: host2 -> host1  cost 2049
+        ! vm3: host1 -> host2  cost 459
+        ! vm2: host2 -> host1  cost 2049
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -148,8 +148,8 @@ def case_shutdown_and_swap():
 
     expected_path = """\
         shutdown: vm2, vm6, vm7, vm8
-        ! vm9^256: host2^3048 -> host4^2448  cost 256
-        ! vm5^1024: host4^2448 -> host2^3048  cost 1024
+        ! vm9: host2 -> host4  cost 256
+        ! vm5: host4 -> host2  cost 1024
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -183,11 +183,11 @@ def case_tricky():
 
     expected_path = """\
         shutdown: vm6
-        ! vm4^900: host2^2256 -> host3^2256  cost 900
-        ! vm3^900: host1^2256 -> host2^2256  cost 900
-        ! vm2^1000: host2^2256 -> host1^2256  cost 1000
-        ! vm4^900: host3^2256 -> host2^2256  cost 900
-        ! vm5^150: host3^2256 -> host2^2256  cost 150
+        ! vm4: host2 -> host3  cost 900
+        ! vm3: host1 -> host2  cost 900
+        ! vm2: host2 -> host1  cost 1000
+        ! vm4: host3 -> host2  cost 900
+        ! vm5: host3 -> host2  cost 150
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -228,18 +228,18 @@ def case_chain4():
 
     expected_path = """\
         shutdown: 
-        ! big1^500: host1^1256 -> host5^1256  cost 500
-        ! small4^400: host4^1256 -> host1^1256  cost 400
-        ! small1^370: host1^1256 -> host4^1256  cost 370
-        ! big1^500: host5^1256 -> host1^1256  cost 500
-        ! big2^510: host2^1256 -> host5^1256  cost 510
-        ! small3^390: host3^1256 -> host2^1256  cost 390
-        ! small2^380: host2^1256 -> host3^1256  cost 380
-        ! big2^510: host5^1256 -> host2^1256  cost 510
-        ! tiny1^100: host5^1256 -> host1^1256  cost 100
-        ! tiny2^100: host5^1256 -> host2^1256  cost 100
-        ! tiny3^100: host5^1256 -> host3^1256  cost 100
-        ! tiny4^100: host5^1256 -> host4^1256  cost 100
+        ! big1: host1 -> host5  cost 500
+        ! small4: host4 -> host1  cost 400
+        ! small1: host1 -> host4  cost 370
+        ! big1: host5 -> host1  cost 500
+        ! big2: host2 -> host5  cost 510
+        ! small3: host3 -> host2  cost 390
+        ! small2: host2 -> host3  cost 380
+        ! big2: host5 -> host2  cost 510
+        ! tiny1: host5 -> host1  cost 100
+        ! tiny2: host5 -> host2  cost 100
+        ! tiny3: host5 -> host3  cost 100
+        ! tiny4: host5 -> host4  cost 100
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -296,19 +296,19 @@ def case_chain6():
 
     expected_path = """\
         shutdown: big6, small1
-        ! big2^510: host2^1256 -> host6^1256  cost 510
-        ! small5^390: host5^1256 -> host2^1256  cost 390
-        ! small2^360: host2^1256 -> host5^1256  cost 360
-        ! big2^510: host6^1256 -> host2^1256  cost 510
-        ! big3^520: host3^1256 -> host6^1256  cost 520
-        ! small4^380: host4^1256 -> host3^1256  cost 380
-        ! small3^370: host3^1256 -> host4^1256  cost 370
-        ! big3^520: host6^1256 -> host3^1256  cost 520
-        ! small6^400: host6^1256 -> host1^1256  cost 400
-        ! tiny1^100: hostX^1256 -> host1^1256  cost 100
-        ! tiny2^100: hostX^1256 -> host2^1256  cost 100
-        ! tiny3^100: hostX^1256 -> host3^1256  cost 100
-        ! tiny4^100: hostX^1256 -> host4^1256  cost 100
+        ! big2: host2 -> host6  cost 510
+        ! small5: host5 -> host2  cost 390
+        ! small2: host2 -> host5  cost 360
+        ! big2: host6 -> host2  cost 510
+        ! big3: host3 -> host6  cost 520
+        ! small4: host4 -> host3  cost 380
+        ! small3: host3 -> host4  cost 370
+        ! big3: host6 -> host3  cost 520
+        ! small6: host6 -> host1  cost 400
+        ! tiny1: hostX -> host1  cost 100
+        ! tiny2: hostX -> host2  cost 100
+        ! tiny3: hostX -> host3  cost 100
+        ! tiny4: hostX -> host4  cost 100
         provision: tiny5
     """
     return (stateA, stateB, expected_path)
