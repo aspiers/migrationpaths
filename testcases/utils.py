@@ -3,7 +3,7 @@
 from vm import VM
 from vmhost import VMhost
 
-def create_vmhosts(count, arch, ram, dom0_ram):
+def create_vmhosts(count, arch, ram, dom0_ram=None):
     width = len(str(count))
     vmhosts = [ ]
     for i in xrange(count):
