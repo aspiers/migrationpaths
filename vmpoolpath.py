@@ -84,7 +84,7 @@ class VMPoolPath:
         if self.vms_to_shutdown:
             print "- First shut down VMs: %s" % ", ".join(self.vms_to_shutdown)
 
-        current_state = self.post_shutdown_state
+        current_state = self.state_post_initial_shutdowns
         print "  Start: ", current_state
         current_state.show_ascii_meters(10, 80, indent='  ')
 
