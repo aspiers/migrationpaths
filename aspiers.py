@@ -40,6 +40,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
     """
 
     def run(self):
+        self.debug(2, self.path.challenge_visualization(10, 80))
         return self._solve(self.path.state_post_initial_shutdowns,
                            self.path.vms_to_migrate)
 
@@ -58,7 +59,6 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             return []
 
         final_state = self.path.state_pre_final_provisions
-        self.debug(2, self.path.challenge_visualization(10, 80))
 
         path = []
         count = 0
