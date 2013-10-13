@@ -256,7 +256,7 @@ def case_chain6():
     host4 = VMhost('host4', 'x86_64', 1256)
     host5 = VMhost('host5', 'x86_64', 1256)
     host6 = VMhost('host6', 'x86_64', 1256)
-    hostX = VMhost('hostX', 'x86_64', 1256)
+    host7 = VMhost('host7', 'x86_64', 1256)
 
     big1   = VM('big1', 'x86_64', 500)
     big2   = VM('big2', 'x86_64', 510)
@@ -284,7 +284,7 @@ def case_chain6():
         'host4' : [ big4, small4 ],
         'host5' : [ big5, small5 ],
         'host6' : [ big6, small6 ],
-        'hostX' : [ tiny1, tiny2, tiny3, tiny4 ],
+        'host7' : [ tiny1, tiny2, tiny3, tiny4 ],
         }
     stateB = {
         'host1' : [ big1, small6, tiny1 ],
@@ -292,25 +292,25 @@ def case_chain6():
         'host3' : [ big3, small4, tiny3 ],
         'host4' : [ big4, small3, tiny4 ],
         'host5' : [ big5, small2, tiny5 ],
-#        'host6' : [ big6, small1, tiny6 ],
-        'hostX' : [ ],
+        'host6' : [ ],
+        'host7' : [ ],
         }
 
     expected_path = """\
         shutdown: big6, small1
-        ! big2: host2 -> host6  cost 510
+        ! big2: host2 -> host7  cost 510
         ! small5: host5 -> host2  cost 390
         ! small2: host2 -> host5  cost 360
-        ! big2: host6 -> host2  cost 510
-        ! big3: host3 -> host6  cost 520
+        ! big2: host7 -> host2  cost 510
+        ! big3: host3 -> host7  cost 520
         ! small4: host4 -> host3  cost 380
         ! small3: host3 -> host4  cost 370
-        ! big3: host6 -> host3  cost 520
+        ! big3: host7 -> host3  cost 520
         ! small6: host6 -> host1  cost 400
-        ! tiny1: hostX -> host1  cost 100
-        ! tiny2: hostX -> host2  cost 100
-        ! tiny3: hostX -> host3  cost 100
-        ! tiny4: hostX -> host4  cost 100
+        ! tiny1: host7 -> host1  cost 100
+        ! tiny2: host7 -> host2  cost 100
+        ! tiny3: host7 -> host3  cost 100
+        ! tiny4: host7 -> host4  cost 100
         provision: tiny5
     """
     return (stateA, stateB, expected_path)
