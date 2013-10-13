@@ -181,7 +181,8 @@ class VMPoolPath:
 
         print self.challenge_visualization(host_width, meter_width)
 
-        print self.summary()
+        print self.summary() + ":\n"
+        print self.dump()
 
         if self.vms_to_shutdown:
             self.next_screen(clear_screen, sleep)
@@ -271,4 +272,5 @@ class VMPoolPath:
                 highlight_vms = highlights['after'])
             print "Provisioning complete.\n"
 
-        print self.summary()
+        print self.summary() + ":\n"
+        print self.dump()
