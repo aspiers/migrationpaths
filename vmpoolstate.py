@@ -219,19 +219,19 @@ class VMPoolState:
         vm_names.sort()
         vms = [ VM.vms[vm_name] for vm_name in vm_names ]
         ram_used = 0
-        doms  = [ ('dom0', vmhost.dom0_ram) ]
-        doms += [ (vm.name, vm.ram) for vm in vms ]
-        ram_used = reduce(lambda acc, dom: acc + dom[1], doms, 0)
+        doms  = [ ('dom0', 'dom0 (%s)' % vmhost.dom0_ram, vmhost.dom0_ram) ]
+        doms += [ (vm.name, '%s (%d)' % (vm.name, vm.ram), vm.ram) for vm in vms ]
+        ram_used = reduce(lambda acc, dom: acc + dom[2], doms, 0)
         spare_ram = vmhost.ram - ram_used
         if spare_ram > 0:
             spare_ram_label = '%d' % spare_ram
-            doms += [ (spare_ram_label, spare_ram) ]
-            highlight_vms[spare_ram_label] = ['grey', None, ['bold']]
+            doms += [ ('spare', spare_ram_label, spare_ram) ]
+            highlight_vms['spare'] = ['grey', None, ['bold']]
 
         meter = ''
         printable_char_count = 0
         offset = 0.0
-        for i, (dom_name, dom_ram) in enumerate(doms):
+        for i, (dom_name, dom_label, dom_ram) in enumerate(doms):
             length = float(dom_ram) / vmhost.ram * width
             offset += length
             dom_width = int(offset) - printable_char_count
@@ -243,7 +243,7 @@ class VMPoolState:
                 continue
                 # raise RuntimeError("dom labelled '%s' had width %d" %
                 #                    (dom_name, dom_width))
-            dom_text = "{0:^{1}.{1}}".format(dom_name, dom_width - 1)
+            dom_text = "{0:^{1}.{1}}".format(dom_label, dom_width - 1)
             printable_char_count += len(dom_text)
             if dom_name in highlight_vms:
                 args = highlight_vms[dom_name]
