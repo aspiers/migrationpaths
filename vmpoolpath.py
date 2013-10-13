@@ -182,7 +182,7 @@ class VMPoolPath:
 
         return s
 
-    def animate(self, clear_screen, sleep=0):
+    def animate(self, clear_screen, sleep=0, start_sleep=1.0, end_sleep=2.0):
         if clear_screen:
             os.system("clear")
 
@@ -195,6 +195,7 @@ class VMPoolPath:
 
         print self.summary() + ":\n"
         print self.dump()
+        time.sleep(start_sleep)
 
         if self.vms_to_shutdown:
             self.next_screen(clear_screen, sleep)
@@ -286,3 +287,4 @@ class VMPoolPath:
 
         print self.summary() + ":\n"
         print self.dump()
+        time.sleep(end_sleep)
