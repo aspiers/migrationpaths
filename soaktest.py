@@ -13,7 +13,7 @@ from aspiers import VMPoolAdamPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
 while True:
-    stateA, stateB, expected_path = testcases.random.identical_hosts(3, 4)
+    stateA, stateB, expected_path = testcases.random.identical_hosts(3, 5)
 
     path_finder = STRATEGY(stateA, stateB)
     try:
@@ -28,6 +28,5 @@ while True:
     if path:
         print path.summary()
     else:
-        print path_finder.path.challenge_visualization(10, 80)
-        print "\nNo path found!"
-        sys.exit(1)
+        #print path_finder.path.challenge_visualization(10, 80)
+        print "No path found!"
