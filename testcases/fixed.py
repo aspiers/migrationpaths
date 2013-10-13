@@ -2,10 +2,10 @@
 
 from vm import VM
 from vmhost import VMhost
+import testcases
 
 def case_simple_swap():
-    host1 = VMhost('host1', 'x86_64', 4096)
-    host2 = VMhost('host2', 'x86_64', 4096)
+    testcases.utils.create_vmhosts(2, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 256)
     vm2 = VM('vm2', 'x86_64', 256)
     stateA = {
@@ -25,9 +25,7 @@ def case_simple_swap():
     return (stateA, stateB, expected_path)
 
 def case_simple_cessation():
-    host1 = VMhost('host1', 'x86_64', 4096)
-    host2 = VMhost('host2', 'x86_64', 4096)
-    host3 = VMhost('host3', 'x86_64', 4096)
+    testcases.utils.create_vmhosts(3, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 3256)
     vm2 = VM('vm2', 'x86_64', 3256)
     stateA = {
@@ -47,9 +45,7 @@ def case_simple_cessation():
     return (stateA, stateB, expected_path)
 
 def case_swap_with_one_temp():
-    host1 = VMhost('host1', 'x86_64', 4096)
-    host2 = VMhost('host2', 'x86_64', 4096)
-    host3 = VMhost('host3', 'x86_64', 4096)
+    testcases.utils.create_vmhosts(3, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 3256)
     vm2 = VM('vm2', 'x86_64', 3256)
     stateA = {
@@ -72,9 +68,7 @@ def case_swap_with_one_temp():
     return (stateA, stateB, expected_path)
 
 def case_complex_swap():
-    host1 = VMhost('host1', 'x86_64', 4096, 280)
-    host2 = VMhost('host2', 'x86_64', 4096, 280)
-    host3 = VMhost('host3', 'x86_64', 4096, 280)
+    testcases.utils.create_vmhosts(3, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 300)
     vm2 = VM('vm2', 'x86_64', 3000)
     vm3 = VM('vm3', 'x86_64', 3700)
@@ -98,8 +92,7 @@ def case_complex_swap():
     return (stateA, stateB, expected_path)
 
 def case_complex_pair_swap():
-    host1 = VMhost('host1', 'x86_64', 4096, 280)
-    host2 = VMhost('host2', 'x86_64', 4096, 280)
+    testcases.utils.create_vmhosts(2, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 1645)
     vm2 = VM('vm2', 'x86_64', 2049)
     vm3 = VM('vm3', 'x86_64', 459)
@@ -203,11 +196,7 @@ def case_chain4():
     # N.B. 256MB required for dom0 (hardcoded).
     # For the sake of easy maths in the example
     # we create 2000MB available for domUs.
-    host1 = VMhost('host1', 'x86_64', 1256)
-    host2 = VMhost('host2', 'x86_64', 1256)
-    host3 = VMhost('host3', 'x86_64', 1256)
-    host4 = VMhost('host4', 'x86_64', 1256)
-    hostX = VMhost('hostX', 'x86_64', 1256)
+    testcases.utils.create_vmhosts(5, 'x86_64', 1256)
 
     big1   = VM('big1', 'x86_64', 500)
     big2   = VM('big2', 'x86_64', 510)
@@ -227,30 +216,30 @@ def case_chain4():
         'host2' : [ big2, small2 ],
         'host3' : [ big3, small3 ],
         'host4' : [ big4, small4 ],
-        'hostX' : [ tiny1, tiny2, tiny3, tiny4 ],
+        'host5' : [ tiny1, tiny2, tiny3, tiny4 ],
         }
     stateB = {
         'host1' : [ big1, small4, tiny1 ],
         'host2' : [ big2, small3, tiny2 ],
         'host3' : [ big3, small2, tiny3 ],
         'host4' : [ big4, small1, tiny4 ],
-        'hostX' : [ ],
+        'host5' : [ ],
         }
 
     expected_path = """\
         shutdown: 
-        ! big1^500: host1^1256 -> hostX^1256  cost 500
+        ! big1^500: host1^1256 -> host5^1256  cost 500
         ! small4^400: host4^1256 -> host1^1256  cost 400
         ! small1^370: host1^1256 -> host4^1256  cost 370
-        ! big1^500: hostX^1256 -> host1^1256  cost 500
-        ! big2^510: host2^1256 -> hostX^1256  cost 510
+        ! big1^500: host5^1256 -> host1^1256  cost 500
+        ! big2^510: host2^1256 -> host5^1256  cost 510
         ! small3^390: host3^1256 -> host2^1256  cost 390
         ! small2^380: host2^1256 -> host3^1256  cost 380
-        ! big2^510: hostX^1256 -> host2^1256  cost 510
-        ! tiny1^100: hostX^1256 -> host1^1256  cost 100
-        ! tiny2^100: hostX^1256 -> host2^1256  cost 100
-        ! tiny3^100: hostX^1256 -> host3^1256  cost 100
-        ! tiny4^100: hostX^1256 -> host4^1256  cost 100
+        ! big2^510: host5^1256 -> host2^1256  cost 510
+        ! tiny1^100: host5^1256 -> host1^1256  cost 100
+        ! tiny2^100: host5^1256 -> host2^1256  cost 100
+        ! tiny3^100: host5^1256 -> host3^1256  cost 100
+        ! tiny4^100: host5^1256 -> host4^1256  cost 100
         provision: 
     """
     return (stateA, stateB, expected_path)
@@ -325,8 +314,7 @@ def case_chain6():
     return (stateA, stateB, expected_path)
 
 def case_simple_deadlock():
-    host1 = VMhost('host1', 'x86_64', 4096)
-    host2 = VMhost('host2', 'x86_64', 4096)
+    testcases.utils.create_vmhosts(2, 'x86_64', 4096)
     vm1 = VM('vm1', 'x86_64', 3256)
     vm2 = VM('vm2', 'x86_64', 3256)
     stateA = {
