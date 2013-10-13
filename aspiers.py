@@ -328,13 +328,12 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         except VMPoolStateSanityError, exc:
             displacement_sufficient = False
 
-        path = [ on_behalf_of ]
         vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate,
                                                      on_behalf_of)
 
         if displacement_sufficient:
             self.debug(2, "  << %s achieves effective displacement" % migration)
-            return path, current_state, vms_to_migrate, locked_vms
+            return [ on_behalf_of ], current_state, vms_to_migrate, locked_vms
         else:
             self.debug(2, "  + %s doesn't achieve effective displacement" % \
                            migration)
@@ -349,7 +348,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             self.debug(2, "  << finished displacement:")
             self.debug(2, "     [%s]" % \
                            ", ".join([ str(m) for m in rest_of_path ]))
-            return path + rest_of_path, current_state, \
+            return rest_of_path, current_state, \
                 displaced_vms_to_migrate, locked_vms
 
     def _find_displacement_candidates(self, current_state, vms_to_migrate,
