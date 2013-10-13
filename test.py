@@ -23,7 +23,8 @@ class TestPathDiscovery(unittest.TestCase):
         VMhost.reset()
 
     def run_test(self, stateA, stateB, expected_path):
-        expected_path = textwrap.dedent(expected_path)
+        if expected_path is not None:
+            expected_path = textwrap.dedent(expected_path)
 
         sA = VMPoolState().init_by_vmhosts(stateA)
         sB = VMPoolState().init_by_vmhosts(stateB)
