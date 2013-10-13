@@ -63,8 +63,7 @@ def identical_hosts(num_hosts=10, max_vms=None,
     VMhost.reset()
 
     stateA = VMPoolState()
-    vmhosts = testcases.utils.create_vmhosts(
-        stateA, num_hosts, 'x86_64', 4096, 280)
+    vmhosts = testcases.utils.create_vmhosts(num_hosts, 'x86_64', 4096, 280)
     for vmhost in vmhosts:
         stateA.init_vmhost(vmhost.name)
 
