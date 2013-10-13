@@ -173,8 +173,13 @@ class VMPoolPath:
         s += self.final_state.ascii_meters(
             host_width, meter_width,
             highlight_vms = highlights['after'])
+
+        vmhosts = sorted([ str(vmhost) for vmhost in self.initial_state.vmhosts() ])
+        s += "\nvmhosts: %s\n" % " ".join(vmhosts)
+
         vms = sorted([ str(vm) for vm in self.initial_state.vms() ])
-        s += "\nvms: %s\n" % " ".join(vms)
+        s += "vms: %s\n" % " ".join(vms)
+
         return s
 
     def animate(self, clear_screen, sleep=0):
