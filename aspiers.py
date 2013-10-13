@@ -136,7 +136,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
         vmhost_highlights = { migration.to_host.name :
                                   ('white', 'on_green', ['bold']) }
-        self.debug_status(current_state, vms_to_migrate, locked_vms,
+        self.debug_state(current_state, vms_to_migrate, locked_vms,
                           vm_highlights, vmhost_highlights)
 
         path, new_state, new_vms_to_migrate = \
@@ -144,7 +144,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         if path is not None:
             self.debug(2, "  << solved without displacement:")
-            self.debug_status(new_state, new_vms_to_migrate, locked_vms)
+            self.debug_state(new_state, new_vms_to_migrate, locked_vms)
             return path, new_state, new_vms_to_migrate, locked_vms
 
         self.debug(2, "  x can't migrate %s without first making way:" \
@@ -262,7 +262,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                  partially_displaced_vms_to_migrate) = \
                     self._solve_single(current_state, migration, vms_to_migrate)
                 if partial_displacements is not None:
-                    self.debug_status(partially_displaced_state,
+                    self.debug_state(partially_displaced_state,
                                       partially_displaced_vms_to_migrate,
                                       locked_for_displacement)
 

@@ -104,8 +104,8 @@ class VMPoolPathFinder:
     def get_debug(self):
         return self._debug
 
-    def debug_status(self, current_state, vms_to_migrate, locked_vms,
-                     extra_vm_highlights={}, vmhost_highlights={}):
+    def debug_state(self, current_state, vms_to_migrate, locked_vms,
+                    extra_vm_highlights={}, vmhost_highlights={}):
         vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
         vm_highlights.update(extra_vm_highlights)
         self.debug(2, current_state.ascii_meters(
