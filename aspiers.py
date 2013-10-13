@@ -241,7 +241,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """
         usurper_name = on_behalf_of.vm.name
         self.debug(2, "\ndisplace from %s for %s" % \
-                       (on_behalf_of.to_host, usurper_name))
+                       (on_behalf_of.to_host.name, usurper_name))
         self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
 
         # Ensure displacement can't touch the VM we're displacing on behalf of,
@@ -399,7 +399,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
         displace_from_host = on_behalf_of.to_host
         _debug_cand("finding candidates to displace from %s" %
-                    displace_from_host)
+                    displace_from_host.name)
 
         for vm_name in current_state.vmhost2vms[displace_from_host.name]:
             if vm_name in locked_vms:
@@ -414,7 +414,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                        on_behalf_of)
                 _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
-                _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host))
+                _debug_cand("1  + saved case 2: %s ! %s" % (vm_name, to_host.name))
                 # We need to perform this migration anyway, so it
                 # shouldn't cost us too dearly to recursively displace
                 # if necessary in order to make it possible.

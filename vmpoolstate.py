@@ -209,7 +209,7 @@ class VMPoolState:
             if vmhost_name in highlight_vmhosts:
                 args = highlight_vmhosts[vmhost_name]
             s += "{0}{1:{2}} {3}\n".format(indent,
-                                           colored(vmhost, *args),
+                                           colored(vmhost_name, *args),
                                            host_width, meter)
         return s
 
