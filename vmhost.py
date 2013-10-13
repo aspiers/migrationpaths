@@ -3,7 +3,9 @@
 class VMhost:
     vmhosts = { }
 
-    def __init__(self, name, arch, ram, dom0_ram=256):
+    def __init__(self, name, arch, ram, dom0_ram=None):
+        if dom0_ram is None:
+            dom0_ram = 256
         assert type(name) is str
         self.name = name
         self.arch = arch
