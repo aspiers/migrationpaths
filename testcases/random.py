@@ -9,6 +9,7 @@ from vm import VM
 from vmhost import VMhost
 from vmpoolstate import VMPoolState
 from vmpoolstateerrors import *
+import testcases.utils
 
 def randomly_populate_hosts(state, max_vms=None, min_vm_ram=None, max_vm_ram=None):
     i = 0
@@ -62,9 +63,9 @@ def identical_hosts(num_hosts=10, max_vms=None,
     VMhost.reset()
 
     stateA = VMPoolState()
-    width = len(str(num_hosts))
-    for i in xrange(num_hosts):
-        vmhost = VMhost("host{0:0{1}}".format(i+1, width), 'x86_64', 4096, 280)
+    vmhosts = testcases.utils.create_vmhosts(
+        stateA, num_hosts, 'x86_64', 4096, 280)
+    for vmhost in vmhosts:
         stateA.init_vmhost(vmhost.name)
 
     randomly_populate_hosts(stateA, max_vms,
