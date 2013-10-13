@@ -31,9 +31,11 @@ def case_simple_cessation():
     stateA = {
         'host1' : [ vm1 ],
         'host2' : [ vm2 ],
+        'host3' : [ ],
         }
     stateB = {
         'host1' : [ vm2 ],
+        'host2' : [ ],
         'host3' : [ vm1 ],
         }
     expected_path = """\
