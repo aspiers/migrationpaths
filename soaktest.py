@@ -18,6 +18,8 @@ while True:
     path_finder = STRATEGY(stateA, stateB)
     try:
         path = path_finder.find_path()
+        if path is not None:
+            path.walk()
     except RuntimeError, exc:
         print path_finder.get_debug()
         traceback.print_exc(exc)

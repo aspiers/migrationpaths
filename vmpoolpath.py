@@ -102,6 +102,13 @@ class VMPoolPath:
                                for vm, vmhost in self.vms_to_provision ]
             print "+ Finally provision VMs: %s" % ", ".join(provisions)
 
+    # useful for sanity checking migration sequence
+    def walk(self):
+        current_state = self.state_post_initial_shutdowns
+        for migration in self.migration_sequence:
+            current_state = current_state.migrate(migration.vm.name,
+                                                  migration.to_host.name)
+
     def dump(self, indent=''):
         s = ''
         s += "%sshutdown: %s\n" % \
