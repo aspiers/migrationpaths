@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import time
 
 from vmpoolstateerrors import VMPoolStateSanityError
 from vmpoolpath import VMPoolPath
@@ -23,6 +24,7 @@ class VMPoolPathFinder:
         self._debug = ''
         self._debug_level = debug_level
 
+        self._start_time = time.time()
 
         # Did we find a path yet?
         self.found = False
@@ -56,6 +58,8 @@ class VMPoolPathFinder:
 
     def find_path(self):
         migrations = self.run()
+        self._end_time = time.time()
+
         if migrations is None:
             return None
 
@@ -64,6 +68,9 @@ class VMPoolPathFinder:
         self.path.set_cost(cost)
 
         return self.path
+
+    def time_elapsed(self):
+        return self._end_time - self._start_time
 
     def debug(self, level, message):
         if level >= self._debug_level:
