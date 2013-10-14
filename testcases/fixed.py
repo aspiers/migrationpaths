@@ -355,7 +355,10 @@ def case_weird():
     """
     return (stateA, stateB, expected_path)
 
-def case_max_recursion_depth():
+def case_circles():
+    """This one would go around in circles if we allowed moving of the
+    same VM twice in a row.
+    """
     testcases.utils.create_vmhosts(3, 'x86_64', 4096, 280)
     vm1 = VM('vm1', 'x86_64', 1280)
     vm2 = VM('vm2', 'x86_64',  593)
