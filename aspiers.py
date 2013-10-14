@@ -71,7 +71,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             from_host = current_state.get_vm_vmhost(vm_name)
             to_host = self.target_host(vm_name)
             migration = VMmigration(vm_name, from_host, to_host)
-            self.debug(2, "\nsolve: %s" % migration)
+            self.debug(2, "solve: %s" % migration)
             path_segment, new_state, new_vms_to_migrate, locked_vms = \
                 self._solve_to(path, current_state, migration, vms_to_migrate, {})
             if path_segment:
@@ -130,9 +130,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             self._solve_single(path, current_state, migration,
                                vms_to_migrate, locked_vms)
 
+        self.debug(1, "")
         if single is not None:
-            self.debug(1, "<< solved without displacement:")
-            self.debug_state(new_state, new_vms_to_migrate, locked_vms)
+            self.debug(1, "<< solved without displacement")
             return single, new_state, new_vms_to_migrate, locked_vms
 
         self.debug(2, "can't migrate %s without first making way:" \
@@ -144,7 +144,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             self._displace(path, current_state, migration,
                            vms_to_migrate, locked_vms)
         if displacement_path is None:
-            self.debug(1, "<< Couldn't make way for %s at %s\n" % \
+            self.debug(1, "<< Couldn't make way for %s at %s" % \
                            (migration.vm.name, current_state))
             return None, None, None, None
 
@@ -296,12 +296,10 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
 
             displacements = partial_displacements + remaining_displacements
 
-            self.debug(2, "<< solved displacement %d for %s via" % \
+            self.debug(2, "<< solved displacement %d for %s" % \
                            (self.candidate_search_count, on_behalf_of))
-            self.debug(2, "[%s]" % \
-                           ", ".join([ str(m) for m in displacements ]))
-            self.debug(2, "vms_to_migrate: %s" % \
-                           ", ".join(sorted(vms_to_migrate.keys())))
+            # self.debug(2, "[%s]" % \
+            #                ", ".join([ str(m) for m in displacements ]))
 
             return displacements, fully_displaced_state, \
                 fully_displaced_vms_to_migrate, displaced_locked_vms
@@ -360,11 +358,10 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 self._displace(path + [ on_behalf_of ], current_state,
                                on_behalf_of, vms_to_migrate, locked_vms)
             if rest_of_path is None:
-                self.debug(2, "<< couldn't displace enough; give up on this line")
+                self.debug(2, "<< couldn't displace enough; give up on this path")
                 return None, None, None, None
 
-            self.debug(2, "<< finished displacement:")
-            self.debug(2, "[%s]" % ", ".join([ str(m) for m in rest_of_path ]))
+            self.debug(2, "<< finished displacement for %s" % on_behalf_of)
             return rest_of_path, current_state, \
                 displaced_vms_to_migrate, locked_vms
 
