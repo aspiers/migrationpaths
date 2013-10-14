@@ -110,8 +110,8 @@ def case_complex_pair_swap():
     expected_path = """\
         shutdown: 
         ! vm1: host2 -> host1  cost 1645
-        ! vm4: host1 -> host2  cost 222
         ! vm3: host1 -> host2  cost 459
+        ! vm4: host1 -> host2  cost 222
         ! vm2: host2 -> host1  cost 2049
         provision: 
     """
@@ -374,8 +374,8 @@ def case_max_recursion_depth():
         }
     expected_path = """\
         shutdown: 
-        ! vm2: host3 -> host1  cost 593
         ! vm1: host3 -> host2  cost 1280
+        ! vm2: host3 -> host1  cost 593
         ! vm4: host2 -> host3  cost 2332
         ! vm2: host1 -> host2  cost 593
         provision: 

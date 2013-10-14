@@ -171,6 +171,11 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(1, "\n>> solve_single %s" % migration)
         self.debug(1, repr(path))
 
+        if path and path[-1].vm.name == migration.vm.name:
+            # If we allowed this, we'd just go around in circles
+            self.debug(2, "<< cannot migrate same VM twice in a row")
+            return None, None, None
+
         vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
         vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
         vmhost_highlights = { migration.to_host.name :
