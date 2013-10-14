@@ -124,5 +124,5 @@ class VMPoolPathFinder:
             10, 80, indent='',
             highlight_vms=vm_highlights,
             highlight_vmhosts=vmhost_highlights
-            )
+            ).rstrip()
         self.debug(2, meters, indent='')
