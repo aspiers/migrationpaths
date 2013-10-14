@@ -126,15 +126,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(1, "\n>> solve_to %s" % migration)
         self.debug(1, repr(path))
 
-        vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
-        vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
-        vmhost_highlights = { migration.to_host.name :
-                                  ('white', 'on_green', ['bold']) }
-        self.debug_state(current_state, vms_to_migrate, locked_vms,
-                         vm_highlights, vmhost_highlights)
-
         single, new_state, new_vms_to_migrate = \
-            self._solve_single(path, current_state, migration, vms_to_migrate)
+            self._solve_single(path, current_state, migration,
+                               vms_to_migrate, locked_vms)
 
         if single is not None:
             self.debug(1, "<< solved without displacement:")
@@ -160,7 +154,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                        ", ".join(sorted(vms_to_migrate.keys())))
         return displacement_path, displaced_state, vms_to_migrate, locked_vms
 
-    def _solve_single(self, path, current_state, migration, vms_to_migrate):
+    def _solve_single(self, path, current_state, migration,
+                      vms_to_migrate, locked_vms):
         """Checks the given migration is sane, and returns the updated state.
 
         Returns a (path, new_state, vms_to_migrate) tuple:
@@ -175,6 +170,13 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         """
         self.debug(1, "\n>> solve_single %s" % migration)
         self.debug(1, repr(path))
+
+        vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
+        vm_highlights[migration.vm.name] = ('yellow', 'on_cyan')
+        vmhost_highlights = { migration.to_host.name :
+                                  ('white', 'on_green', ['bold']) }
+        self.debug_state(current_state, vms_to_migrate, locked_vms,
+                         vm_highlights, vmhost_highlights)
 
         try:
             new_state = \
@@ -256,8 +258,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 (partial_displacements,
                  partially_displaced_state,
                  partially_displaced_vms_to_migrate) = \
-                    self._solve_single(path, current_state,
-                                       migration, vms_to_migrate)
+                    self._solve_single(path, current_state, migration,
+                                       vms_to_migrate, locked_for_displacement)
                 if partial_displacements is not None:
                     self.debug_state(partially_displaced_state,
                                       partially_displaced_vms_to_migrate,
