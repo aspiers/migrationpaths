@@ -23,6 +23,7 @@ class VMPoolPathFinder:
 
         self._debug = ''
         self._debug_level = debug_level
+        self.immediate_debugging = False
 
         self._start_time = time.time()
 
@@ -74,6 +75,8 @@ class VMPoolPathFinder:
 
     def debug(self, level, message):
         if level >= self._debug_level:
+            if self.immediate_debugging:
+                print message
             self._debug += message + "\n"
 
     def _get_vm_highlights(self, vms_to_migrate, locked_vms):
