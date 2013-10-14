@@ -25,8 +25,9 @@ except RuntimeError, exc:
     traceback.print_exc(exc)
     sys.exit(1)
 
-print path.dump()
-# if path:
-#     path.animate(True)
-# else:
-#     print "\nNo path found to animate."
+if path:
+    print "-" * 70
+    print "Solution:\n\n", path.dump()
+    #path.animate(True)
+else:
+    print "\nNo path found to animate."
