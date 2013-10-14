@@ -75,8 +75,8 @@ class VMPoolShortestPathFinder(VMPoolPathFinder):
         self.route = { }
 
         self._state_cache = { }
-        self.cache_state(initial_state)
-        self.cache_state(final_state)
+        self.cache_state(self.path.initial_state)
+        self.cache_state(self.path.final_state)
 
     def run(self):
         self.end = self.path.state_pre_final_provisions.unique()
