@@ -31,11 +31,14 @@ while True:
         #print path_finder.path.challenge_visualization(10, 80)
         print "No path found!"
 
-    if path_finder.time_elapsed() > 1.0 and path is None:
+    if path_finder.time_elapsed() > 3.0:
         print path_finder.path.challenge_visualization(10, 80)
         print path_finder.get_debug()
         print path_finder.path.challenge_visualization(10, 80)
-        print path.summary()
-        print path.dump()
+        if path:
+            print path.summary()
+            print path.dump()
+        else:
+            print "No path found!"
         print "Took too long; aborting."
         sys.exit(1)
