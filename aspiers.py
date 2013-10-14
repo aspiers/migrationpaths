@@ -336,20 +336,13 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
         self.debug(1, "\n>> recurse_displacement for %s" % on_behalf_of)
         self.debug(1, repr(path))
 
-        try:
-            current_state = \
-                current_state.check_migration_sane(on_behalf_of.vm.name,
-                                                   on_behalf_of.to_host)
-            displacement_sufficient = True
-        except VMPoolStateSanityError, exc:
-            displacement_sufficient = False
+        single, new_state, new_vms_to_migrate = \
+            self._solve_single(path, current_state, on_behalf_of,
+                               vms_to_migrate, locked_vms)
 
-        vms_to_migrate = self._update_vms_to_migrate(vms_to_migrate,
-                                                     on_behalf_of)
-
-        if displacement_sufficient:
+        if path is not None:
             self.debug(2, "<< %s achieves effective displacement" % migration)
-            return [ on_behalf_of ], current_state, vms_to_migrate, locked_vms
+            return single, new_state, new_vms_to_migrate, locked_vms
         else:
             self.debug(2, "+ %s doesn't achieve effective displacement" % \
                            migration)
