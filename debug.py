@@ -12,7 +12,12 @@ from aspiers import VMPoolAdamPathFinder
 #STRATEGY = VMPoolShortestPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
-stateA, stateB, expected_path = testcases.fixed.case_slow()
+testcase = 'slow'
+if len(sys.argv) == 2:
+    testcase = sys.argv[1]
+testcase = getattr(testcases.fixed, "case_%s" % testcase)
+
+stateA, stateB, expected_path = testcase()
 stateA = VMPoolState().init_by_vmhosts(stateA)
 stateB = VMPoolState().init_by_vmhosts(stateB)
 
