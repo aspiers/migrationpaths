@@ -374,10 +374,10 @@ def case_max_recursion_depth():
         }
     expected_path = """\
         shutdown: 
-        ! vm2: host3 -> host1  cost 2542
-        ! vm1: host3 -> host1  cost 892
-        ! vm3: host2 -> host3  cost 3039
-        ! vm1: host1 -> host2  cost 892
+        ! vm2: host3 -> host1  cost 593
+        ! vm1: host3 -> host2  cost 1280
+        ! vm4: host2 -> host3  cost 2332
+        ! vm2: host1 -> host2  cost 593
         provision: 
     """
     return (stateA, stateB, expected_path)
