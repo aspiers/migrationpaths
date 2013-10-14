@@ -411,7 +411,7 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                                        on_behalf_of)
                 _debug_cand("1  ? consider required displacement %s" % migration)
                 case_two.append((vm_name, to_host))
-                _debug_cand("1  + saved case 2: %s ! %s" %
+                _debug_cand("1  + deferred case 2: %s -> anything but %s" %
                             (vm_name, to_host.name))
                 # We need to perform this migration anyway, so it
                 # shouldn't cost us too dearly to recursively displace
@@ -419,7 +419,8 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
                 yield (migration, self.ALLOW_RECURSION)
             else:
                 case_three.append(vm_name)
-                _debug_cand("1  + saved case 3: %s" % vm_name)
+                _debug_cand("1  + deferred case 3: "
+                            "undesirable migration of %s" % vm_name)
 
         # Case 2: migrating VMs which we need to move anyway, directly
         # to a non-final destination.
