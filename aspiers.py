@@ -402,6 +402,9 @@ class VMPoolAdamPathFinder(VMPoolPathFinder):
             if vm_name in locked_vms:
                 _debug_cand("1  - %s is locked; not considering" % vm_name)
                 continue
+            if path and vm_name == path[-1].vm.name:
+                _debug_cand("1  - %s was just moved; not considering" % vm_name)
+                continue
             if vm_name in vms_to_migrate:
                 to_host = self.target_host(vm_name)
                 migration = VMmigration(vm_name, displace_from_host, to_host)
