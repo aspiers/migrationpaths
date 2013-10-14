@@ -384,3 +384,46 @@ def case_circles():
         provision: 
     """
     return (stateA, stateB, expected_path)
+
+def case_slow():
+    """This one is sloooooow.
+    """
+    testcases.utils.create_vmhosts(5, 'x86_64', 4096, 280)
+    vm1 = VM('vm1', 'x86_64',  721)
+    vm2 = VM('vm2', 'x86_64', 2347)
+    vm3 = VM('vm3', 'x86_64',  175)
+    vm4 = VM('vm4', 'x86_64',  329)
+    vm5 = VM('vm5', 'x86_64',  750)
+    vm6 = VM('vm6', 'x86_64',  687)
+    vm7 = VM('vm7', 'x86_64', 2752)
+    vm8 = VM('vm8', 'x86_64', 3199)
+    vm9 = VM('vm9', 'x86_64', 3532)
+    stateA = {
+        'host1' : [ vm9 ],
+        'host2' : [ vm8 ],
+        'host3' : [ vm7 ],
+        'host4' : [ vm4, vm5, vm6 ],
+        'host5' : [ vm1, vm2, vm3 ],
+        }
+    stateB = {
+        'host1' : [ vm3, vm9 ],
+        'host2' : [ vm1, vm4, vm5, vm6 ],
+        'host3' : [ vm2 ],
+        'host4' : [ vm7 ],
+        'host5' : [ vm8 ],
+        }
+    expected_path = """\
+        shutdown: 
+        ! vm4: host4 -> host2  cost 329
+        ! vm6: host4 -> host3  cost 687
+        ! vm7: host3 -> host4  cost 2752
+        ! vm2: host5 -> host3  cost 2347
+        ! vm3: host5 -> host1  cost 175
+        ! vm1: host5 -> host3  cost 721
+        ! vm8: host2 -> host5  cost 3199
+        ! vm5: host4 -> host2  cost 750
+        ! vm1: host3 -> host2  cost 721
+        ! vm6: host3 -> host2  cost 687
+        provision: 
+    """
+    return (stateA, stateB, expected_path)
