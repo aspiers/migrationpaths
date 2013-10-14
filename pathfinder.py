@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
+import re
 import sys
 import time
+import traceback
 
 from vmpoolstateerrors import VMPoolStateSanityError
 from vmpoolpath import VMPoolPath
@@ -58,6 +60,7 @@ class VMPoolPathFinder:
             sys.exit(1)
 
     def find_path(self):
+        self._stack_depth_at_run = len(traceback.extract_stack()) + 1
         migrations = self.run()
         self._end_time = time.time()
 
@@ -73,11 +76,33 @@ class VMPoolPathFinder:
     def time_elapsed(self):
         return self._end_time - self._start_time
 
-    def debug(self, level, message):
-        if level >= self._debug_level:
+    def debug(self, level, message, indent=None):
+        if level <= self._debug_level:
+            if indent is None:
+                indent = self._indent()
+            #print "indent[%s]" % indent
+            if indent != "":
+                message = re.subn('^', indent, message, 0, re.MULTILINE)[0]
+            #message = "[%s]" % message
             if self.immediate_debugging:
                 print message
             self._debug += message + "\n"
+
+    def _indent(self):
+        # Determine stack depth from run() method
+        stack = traceback.extract_stack()
+        stack = stack[self._stack_depth_at_run:]
+
+        # Pop debug routines off traceback
+        while stack and __file__.startswith(stack[-1][0]):
+            stack.pop()
+
+        # print("".join(traceback.format_list(stack)))
+        # print len(stack)
+
+        # Indent by stack depth, excluding this method's caller so
+        # that we start with no indentation.
+        return "  " * (len(stack) - 1)
 
     def _get_vm_highlights(self, vms_to_migrate, locked_vms):
         vm_highlights = { }
@@ -95,10 +120,9 @@ class VMPoolPathFinder:
                     extra_vm_highlights={}, vmhost_highlights={}):
         vm_highlights = self._get_vm_highlights(vms_to_migrate, locked_vms)
         vm_highlights.update(extra_vm_highlights)
-        self.debug(2, current_state.ascii_meters(
-                10, 80, indent='  ',
-                highlight_vms=vm_highlights,
-                highlight_vmhosts=vmhost_highlights))
-
-        self.debug(2, "  vms_to_migrate: %s" % ", ".join(vms_to_migrate.keys()))
-        self.debug(2, "  locked_vms: %s" % ", ".join(locked_vms.keys()))
+        meters = current_state.ascii_meters(
+            10, 80, indent='',
+            highlight_vms=vm_highlights,
+            highlight_vmhosts=vmhost_highlights
+            )
+        self.debug(2, meters, indent='')
