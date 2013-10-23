@@ -87,6 +87,9 @@ class VMPoolPathFinder:
             if self.immediate_debugging:
                 print message
             self._debug += message + "\n"
+        # if time.time() - self._start_time > 1.0:
+        #     print self._debug,
+        #     self._debug = ''
 
     def _indent(self):
         # Determine stack depth from run() method
