@@ -15,7 +15,11 @@ STRATEGY = VMPoolAdamPathFinder
 if len(sys.argv) >= 2 and sys.argv[1] == 'random':
     stateA, stateB, expected_path = testcases.random.identical_hosts()
 else:
-    stateA, stateB, expected_path = testcases.fixed.case_chain6()
+    testcase = 'chain6'
+    if len(sys.argv) == 2:
+        testcase = sys.argv[1]
+    testcase = getattr(testcases.fixed, "case_%s" % testcase)
+    stateA, stateB, expected_path = testcase()
     stateA = VMPoolState().init_by_vmhosts(stateA)
     stateB = VMPoolState().init_by_vmhosts(stateB)
 
