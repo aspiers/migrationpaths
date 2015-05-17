@@ -56,7 +56,8 @@ would intuitively set about finding a migration path in their head:
    already there in order to make space for the incoming VM.
 
 And in fact this yielded a working solution.  You can [see the full
-details in the code](aspiers.py), which is reasonably well documented.
+details in the code](../src/aspiers.py), which is reasonably well
+documented.
 
 By using recursive functions, the displacement can be treated in the
 same manner as the VM migrations in step 2.

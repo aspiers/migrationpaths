@@ -30,27 +30,28 @@ see [`ALGORITHM.md`](ALGORITHM.md).
 Usage
 -----
 
-The code is provided as a set of Python classes, but there are several
-frontend interfaces with which you can run the algorithm directly:
+The code is provided as a set of Python classes in [the `src/`
+directory](src/), but there are several frontend interfaces with which
+you can run the algorithm directly:
 
-*   [`animate.py`](animate.py) - for a single (current, target) state pair, finds a
+*   [`src/animate.py`](src/animate.py) - for a single (current, target) state pair, finds a
     path of migrations from one to the other and animates the
     sequence via an ASCII representation, showing one migration
     per keypress.
-*   [`debug.py`](debug.py) - runs the solver on one of
+*   [`src/debug.py`](src/debug.py) - runs the solver on one of
     [the fixed testcases](testcases/fixed.py), outputting verbose debugging
     information as it goes.  Useful for examining in detail exactly how the
     algorithm works.
-*   [`demo.py`](demo.py) - randomly generates (current, target) state pairs,
+*   [`src/demo.py`](src/demo.py) - randomly generates (current, target) state pairs,
     finds a migration between them, and animates the solution via an ASCII
     representation.
-*   [`repl.py`](repl.py) - REPL interface which lets you manually specify
+*   [`src/repl.py`](src/repl.py) - REPL interface which lets you manually specify
     migrations one at a time.
-*   [`soaktest.py`](soaktest.py) - randomly generates (current, target) state pairs, launches
+*   [`src/soaktest.py`](src/soaktest.py) - randomly generates (current, target) state pairs, launches
     the path finder on them, and flags any runs which took longer
     than a time threshold.  This helps highlight issues
     (performance and otherwise) in the algorithm.
-*   [`test.py`](test.py) - a test runner which runs the algorithm on
+*   [`src/test.py`](src/test.py) - a test runner which runs the algorithm on
     some hardcoded scenarios and checks the results
 
 Code structure
@@ -58,29 +59,29 @@ Code structure
 
 The backend code implementing the algorithm comprises of the following files:
 
-*   [`pathfinder.py`](pathfinder.py) - base class providing container for
+*   [`src/pathfinder.py`](src/pathfinder.py) - base class providing container for
     state used during path discovery
 *   [Strategy](http://en.wikipedia.org/wiki/Strategy_pattern) subclasses:
-    *   [`dijkstra.py`](dijkstra.py) - naive Dijkstra implementation I
+    *   [`src/dijkstra.py`](src/dijkstra.py) - naive Dijkstra implementation I
         implemented first but which turned out to be completely
         useless due to the algorithmic complexity of the path graph
         which needs to be explored
-    *   [`aspiers.py`](aspiers.py) - [my algorithm](ALGORITHM.md)
+    *   [`src/aspiers.py`](src/aspiers.py) - [my algorithm](ALGORITHM.md)
 
 This code is supported by several OO helper classes:
 
-*    [`vm.py`](vm.py) - models a single VM (RAM / architecture requirements)
-*    [`vmhost.py`](vmhost.py) - models a single VM hypervisor host
-*    [`vmmigration.py`](vmmigration.py) - models a single live migration of a
+*    [`src/vm.py`](src/vm.py) - models a single VM (RAM / architecture requirements)
+*    [`src/vmhost.py`](src/vmhost.py) - models a single VM hypervisor host
+*    [`src/vmmigration.py`](src/vmmigration.py) - models a single live migration of a
      VM from one host to another
-*    [`vmpoolstate.py`](vmpoolstate.py) - models a pool of VMs and VM hosts
+*    [`src/vmpoolstate.py`](src/vmpoolstate.py) - models a pool of VMs and VM hosts
      together with a particular placement of the VMs across the VM hosts.
-*    [`vmpoolpath.py`](vmpoolpath.py) - models an ordered sequence of VM shutdowns,
+*    [`src/vmpoolpath.py`](src/vmpoolpath.py) - models an ordered sequence of VM shutdowns,
      migrations, and provisions, between two VM pool states
-*    [`vmpoolstateerrors.py`](vmpoolstateerrors.py) - exception classes
+*    [`src/vmpoolstateerrors.py`](src/vmpoolstateerrors.py) - exception classes
      for use when indicating
-*    [`vodict.py`](vodict.py) - an implementation of a value-ordered dictionary,
-     which is only used by the (useless) [`dijkstra.py`](dijkstra.py)
+*    [`src/vodict.py`](src/vodict.py) - an implementation of a value-ordered dictionary,
+     which is only used by the (useless) [`src/dijkstra.py`](src/dijkstra.py)
 
 Development / support / feedback
 --------------------------------
