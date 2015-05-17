@@ -82,6 +82,11 @@ This code is supported by several OO helper classes:
 *    [`vodict.py`](vodict.py) - an implementation of a value-ordered dictionary,
      which is only used by the (useless) [`dijkstra.py`](dijkstra.py)
 
+Development / support / feedback
+--------------------------------
+
+Please see [the CONTRIBUTING file](CONTRIBUTING.md).
+
 License
 -------
 
