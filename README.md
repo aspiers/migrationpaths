@@ -19,7 +19,7 @@ migrations from a given initial placement to a given final placement.
 This repository provides the code for that implementation.  Here it is
 in action:
 
-<iframe width="640" height="480" src="https://www.youtube.com/embed/aHK3UF3ffNg?rel=0" frameborder="0" allowfullscreen></iframe>
+[![YouTube screencast](./doc/youtube-thumbnail.png)](http://youtu.be/aHK3UF3ffNg)
 
 Algorithm
 ---------
