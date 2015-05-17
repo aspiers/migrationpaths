@@ -25,7 +25,7 @@ Algorithm
 ---------
 
 For more details on the algorithm design and implementation, please
-see [`ALGORITHM.md`](ALGORITHM.md).
+see [`doc/algorithm.md`](doc/algorithm.md).
 
 Usage
 -----
