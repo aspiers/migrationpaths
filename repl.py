@@ -14,7 +14,12 @@ from aspiers import VMPoolAdamPathFinder
 #STRATEGY = VMPoolShortestPathFinder
 STRATEGY = VMPoolAdamPathFinder
 
-stateA, stateB, expected_path = testcases.fixed.case_max_recursion_depth()
+testcase = 'simple_swap'
+if len(sys.argv) == 2:
+    testcase = sys.argv[1]
+testcase = getattr(testcases.fixed, "case_%s" % testcase)
+
+stateA, stateB, expected_path = testcase()
 stateA = VMPoolState().init_by_vmhosts(stateA)
 stateB = VMPoolState().init_by_vmhosts(stateB)
 
@@ -23,8 +28,16 @@ current_state = stateA
 path_finder = STRATEGY(current_state, stateB)
 print path_finder.path.challenge_visualization(10, 80)
 
+first = True
+
 while True:
-    command = raw_input("Enter command > ")
+    if first:
+        msg = "Enter migration " \
+              "(VM name and destination host separated by a space) > "
+        first = False
+    else:
+        msg = "Enter migration > "
+    command = raw_input(msg)
     vm_name, to_host_name = command.split()
     to_host = VMhost.vmhosts[to_host_name]
     try:
