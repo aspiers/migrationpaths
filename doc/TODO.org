@@ -1,0 +1,15 @@
+* future work
+*** NEXT add new debug level which only shows partial path
+*** NEXT fix slow testcase
+*** NEXT try all top-level possibilities in _solve() and choose best
+***** within a time limit
+*** NEXT respect cost function
+*** NEXT nova fake driver
+    - copy state in, and run simulations
+*** NEXT continual re-orientation
+    - other migrations happening during rearrangement?
+    - error handling
+*** NEXT implement simple consolidation and rebalancing heuristics, and test
+*** NEXT performance profiling
+*** NEXT increase soak test dimensions
+*** NEXT incorporate offline migration with higher cost
