@@ -66,7 +66,7 @@ The backend code implementing the algorithm comprises of the following files:
         implemented first but which turned out to be completely
         useless due to the algorithmic complexity of the path graph
         which needs to be explored
-    *   [`src/aspiers.py`](src/aspiers.py) - [my algorithm](ALGORITHM.md)
+    *   [`src/aspiers.py`](src/aspiers.py) - [my algorithm](doc/algorithm.md)
 
 This code is supported by several OO helper classes:
 
